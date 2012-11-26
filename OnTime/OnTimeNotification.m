@@ -8,8 +8,9 @@
 
 #import "OnTimeNotification.h"
 
-static NSString * const notificationTitle = @"OnTime!";
-static NSString * const snoozeLabel = @"Snooze";
+NSString * const kNotificationTitle = @"OnTime!";
+NSString * const kSnoozeLabel = @"Snooze";
+
 static NSString * const notificationMessage =
     @"Leave at %@ to catch %@ at %@ arriving at %@; %@ there will take %d minute(s).";
 static NSString * const reminderMessage =
@@ -119,7 +120,7 @@ static NSDictionary *modeDictionary = nil;
 
     // Create the alert to inform users what time they will have to leave for
     // the station.
-    UIAlertView *av = [[UIAlertView alloc] initWithTitle:notificationTitle
+    UIAlertView *av = [[UIAlertView alloc] initWithTitle:kNotificationTitle
                                                  message:[NSString stringWithFormat:notificationMessage,
                                                           scheduledTimeString,
                                                           trainDestinationName,
@@ -140,7 +141,7 @@ static NSDictionary *modeDictionary = nil;
                                kTravelModeKey: travelMode};
     UILocalNotification *notification = [[UILocalNotification alloc] init];
     [notification setFireDate:scheduledTime];
-    [notification setAlertAction:snoozeLabel];
+    [notification setAlertAction:kSnoozeLabel];
     [notification setAlertBody:[NSString stringWithFormat:reminderMessage,
                                 trainDestinationName,
                                 startStationInfo[stationNameKey],

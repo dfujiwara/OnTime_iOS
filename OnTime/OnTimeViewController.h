@@ -18,11 +18,6 @@
     __weak IBOutlet UITableView *tableView;
 }
 
-// designated initializer
-- (id)initWithNibName:(NSString *)nibNameOrNil
-               bundle:(NSBundle *)nibBundleOrNil
-         notification:(NSDictionary *)notificationData;
-
 // Action for when the notification button is pressed.
 - (IBAction)requestNotification:(id)sender;
 

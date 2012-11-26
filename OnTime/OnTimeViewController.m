@@ -52,7 +52,6 @@ static NSString * const errorCodeKey = @"errorCode";
 const static CLLocationDistance userLocationDistanceThreshold = 200;
 
 @interface OnTimeViewController () {
-    NSDictionary *notificationData_;
     NSMutableSet *tableRowsToUpdate_;
     OnTimeStationMapAnnotation *sourceStationAnnotation_;
     OnTimeStationMapAnnotation *targetStationAnnotation_;
@@ -79,13 +78,9 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
 
 // designated initializer
 - (id)initWithNibName:(NSString *)nibNameOrNil
-               bundle:(NSBundle *)nibBundleOrNil
-         notification:(NSDictionary *)notificationData {
+               bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Set the initial notification data.
-        notificationData_ = notificationData;
-
         // Initialize the set of rows to update when the view appears.
         // This is used for cases like when users has made a source station.
         tableRowsToUpdate_ = [NSMutableSet set];
@@ -97,13 +92,6 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         targetStationAnnotation_ = [[OnTimeStationMapAnnotation alloc] init];
     }
     return self;
-}
-
-// Overriding the parent class designated initializer
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    return [self initWithNibName:nibNameOrNil
-                          bundle:nibBundleOrNil
-                    notification:nil];
 }
 
 
@@ -188,9 +176,6 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
                                                        cancelButtonTitle:errorButtonTitle
                                                        otherButtonTitles:nil];
             [errorAlert show];
-        } else if (notificationData_) {
-            [self processPendingNotification:notificationData_];
-            notificationData_ = nil;
         }
     };
     [[BartStationStore sharedStore] getNearbyStations:lastRecordedLocation_
