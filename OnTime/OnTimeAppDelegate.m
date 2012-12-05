@@ -61,6 +61,8 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
     if (!notification) {
+        // It's possible that the notification is nil; in that case
+        // do nothing.
         NSLog(@"Received no notification");
         return;
     }
