@@ -1,4 +1,4 @@
-	//
+//
 //  OnTimeAppDelegate.m
 //  OnTime
 //
@@ -19,9 +19,9 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 @interface OnTimeAppDelegate () {
     OnTimeViewController *onTimeViewController_;
-
     // TODO: is this safe to keep only one instance of object?
     NSDictionary *receivedNotificationData_;
+    NSOperationQueue *notificationHandlingQueue_;
 }
 
 // Displays the given local notification content in the alert view.
@@ -60,6 +60,10 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    if (!notification) {
+        NSLog(@"Received no notification");
+        return;
+    }
     NSLog(@"Received local notification: %@", notification);
     [[NSNotificationCenter defaultCenter] postNotificationName:kPendingNotificationName
                                                         object:nil
@@ -98,10 +102,14 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 
 - (void)registerNotifications {
+    if (!notificationHandlingQueue_) {
+        notificationHandlingQueue_ = [[NSOperationQueue alloc] init];
+    }
+
     [[NSNotificationCenter defaultCenter]
      addObserverForName:kPendingNotificationName
      object:nil
-     queue:[NSOperationQueue currentQueue]
+     queue:notificationHandlingQueue_
      usingBlock:^(NSNotification *notification) {
          if (!notification.userInfo) {
              NSLog(@"No user info provided with the notification: %@", notification);
