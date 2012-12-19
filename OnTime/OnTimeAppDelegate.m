@@ -7,7 +7,7 @@
 //
 
 #import "OnTimeAppDelegate.h"
-#import "OnTimeViewController.h"
+#import "BartViewController.h"
 #import "OnTimeNotification.h"
 
 // Notification name for the local notification for the departure time.
@@ -18,7 +18,7 @@ static NSString * const kPendingNotificationName = @"kPendingNotification";
 static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 @interface OnTimeAppDelegate () {
-    OnTimeViewController *onTimeViewController_;
+    BartViewController *onTimeViewController_;
     // TODO: is this safe to keep only one instance of object?
     NSDictionary *receivedNotificationData_;
     NSOperationQueue *notificationHandlingQueue_;
@@ -40,8 +40,8 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     [self registerNotifications];
-    onTimeViewController_ = [[OnTimeViewController alloc] initWithNibName:@"OnTimeViewController"
-                                                                   bundle:nil];
+    onTimeViewController_ = [[BartViewController alloc] initWithNibName:nil
+                                                                 bundle:nil];
 
     UINavigationController *navController =
         [[UINavigationController alloc] initWithRootViewController:onTimeViewController_];

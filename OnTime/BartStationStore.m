@@ -12,8 +12,8 @@
 
 const NSInteger limitedStationNumber = 3;
 
-static NSString * const bartStationUrlTemplate = @"http://ontime.nodejitsu.com/bart/locate/?lat=%f&long=%f";
-static NSString * const bartNotificationUrl = @"http://ontime.nodejitsu.com/bart/notify";
+static NSString * const bartStationUrlTemplate = @"http://ontime.jit.su/bart/locate/?lat=%f&long=%f";
+static NSString * const bartNotificationUrl = @"http://ontime.jit.su/bart/notify";
 
 // keys for stations json objects
 static NSString * const successKey = @"success";

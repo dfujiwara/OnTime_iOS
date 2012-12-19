@@ -8,11 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@class OnTimeViewController;
+@class BartViewController;
 
 @interface OnTimeAppDelegate : UIResponder <UIApplicationDelegate, UIAlertViewDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) OnTimeViewController *viewController;
 
 @end

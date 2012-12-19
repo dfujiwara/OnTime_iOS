@@ -13,8 +13,8 @@
 		6A3CC47B160EEE7700F4A12A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6A3CC479160EEE7700F4A12A /* InfoPlist.strings */; };
 		6A3CC47D160EEE7700F4A12A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A3CC47C160EEE7700F4A12A /* main.m */; };
 		6A3CC481160EEE7800F4A12A /* OnTimeAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A3CC480160EEE7800F4A12A /* OnTimeAppDelegate.m */; };
-		6A3CC484160EEE7800F4A12A /* OnTimeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A3CC483160EEE7800F4A12A /* OnTimeViewController.m */; };
-		6A3CC487160EEE7800F4A12A /* OnTimeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6A3CC485160EEE7800F4A12A /* OnTimeViewController.xib */; };
+		6A3CC484160EEE7800F4A12A /* BartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A3CC483160EEE7800F4A12A /* BartViewController.m */; };
+		6A3CC487160EEE7800F4A12A /* BartViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6A3CC485160EEE7800F4A12A /* BartViewController.xib */; };
 		6A3CC48E160EEF5300F4A12A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC48D160EEF5300F4A12A /* MapKit.framework */; };
 		6A3CC490160EEFD200F4A12A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC48F160EEFD200F4A12A /* CoreLocation.framework */; };
 		6A6F0A06165EE74C00423239 /* OnTimeStationMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A6F0A05165EE74C00423239 /* OnTimeStationMapAnnotation.m */; };
@@ -38,9 +38,9 @@
 		6A3CC47E160EEE7700F4A12A /* OnTime-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OnTime-Prefix.pch"; sourceTree = "<group>"; };
 		6A3CC47F160EEE7700F4A12A /* OnTimeAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OnTimeAppDelegate.h; sourceTree = "<group>"; };
 		6A3CC480160EEE7800F4A12A /* OnTimeAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OnTimeAppDelegate.m; sourceTree = "<group>"; };
-		6A3CC482160EEE7800F4A12A /* OnTimeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OnTimeViewController.h; sourceTree = "<group>"; };
-		6A3CC483160EEE7800F4A12A /* OnTimeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OnTimeViewController.m; sourceTree = "<group>"; };
-		6A3CC486160EEE7800F4A12A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/OnTimeViewController.xib; sourceTree = "<group>"; };
+		6A3CC482160EEE7800F4A12A /* BartViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BartViewController.h; sourceTree = "<group>"; };
+		6A3CC483160EEE7800F4A12A /* BartViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BartViewController.m; sourceTree = "<group>"; };
+		6A3CC486160EEE7800F4A12A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/BartViewController.xib; sourceTree = "<group>"; };
 		6A3CC48D160EEF5300F4A12A /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		6A3CC48F160EEFD200F4A12A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		6A6F0A04165EE74C00423239 /* OnTimeStationMapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeStationMapAnnotation.h; sourceTree = "<group>"; };
@@ -153,9 +153,9 @@
 				6A3CC480160EEE7800F4A12A /* OnTimeAppDelegate.m */,
 				6A9E6CD21614298200CFF4DD /* StationChoiceViewController.h */,
 				6A9E6CD31614298200CFF4DD /* StationChoiceViewController.m */,
-				6A3CC482160EEE7800F4A12A /* OnTimeViewController.h */,
-				6A3CC483160EEE7800F4A12A /* OnTimeViewController.m */,
-				6A3CC485160EEE7800F4A12A /* OnTimeViewController.xib */,
+				6A3CC482160EEE7800F4A12A /* BartViewController.h */,
+				6A3CC483160EEE7800F4A12A /* BartViewController.m */,
+				6A3CC485160EEE7800F4A12A /* BartViewController.xib */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -223,7 +223,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6A3CC47B160EEE7700F4A12A /* InfoPlist.strings in Resources */,
-				6A3CC487160EEE7800F4A12A /* OnTimeViewController.xib in Resources */,
+				6A3CC487160EEE7800F4A12A /* BartViewController.xib in Resources */,
 				6ADF2585161D514B00CDEA2B /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -237,7 +237,7 @@
 			files = (
 				6A3CC47D160EEE7700F4A12A /* main.m in Sources */,
 				6A3CC481160EEE7800F4A12A /* OnTimeAppDelegate.m in Sources */,
-				6A3CC484160EEE7800F4A12A /* OnTimeViewController.m in Sources */,
+				6A3CC484160EEE7800F4A12A /* BartViewController.m in Sources */,
 				6A9E6CD51614298200CFF4DD /* StationChoiceViewController.m in Sources */,
 				6A9E6D1B1616CECC00CFF4DD /* Station.m in Sources */,
 				6A9E6D1E1616CF6D00CFF4DD /* BartStation.m in Sources */,
@@ -259,12 +259,12 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		6A3CC485160EEE7800F4A12A /* OnTimeViewController.xib */ = {
+		6A3CC485160EEE7800F4A12A /* BartViewController.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				6A3CC486160EEE7800F4A12A /* en */,
 			);
-			name = OnTimeViewController.xib;
+			name = BartViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 HDProject. All rights reserved.
 //
 
-#import "OnTimeViewController.h"
+#import "BartViewController.h"
 #import "StationChoiceViewController.h"
 #import "BartStationStore.h"
 #import "OnTimeNotification.h"
@@ -51,7 +51,7 @@ static NSString * const errorCodeKey = @"errorCode";
 // updated user location is processed. This is expressed in meters.
 const static CLLocationDistance userLocationDistanceThreshold = 200;
 
-@interface OnTimeViewController () {
+@interface BartViewController () {
     NSMutableSet *tableRowsToUpdate_;
     OnTimeStationMapAnnotation *sourceStationAnnotation_;
     OnTimeStationMapAnnotation *targetStationAnnotation_;
@@ -76,7 +76,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
 
 @end
 
-@implementation OnTimeViewController
+@implementation BartViewController
 
 
 # pragma mark - inits

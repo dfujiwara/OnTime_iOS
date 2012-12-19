@@ -105,7 +105,7 @@ static NSDictionary *modeDictionary = nil;
     // Convert the scheduled time for departure to the station into a string.
     NSInteger scheduledTimeInSeconds = arrivalTimeInSeconds - [durationTime intValue] -
         [bufferTime intValue];
-    NSDate *scheduledTime = [NSDate dateWithTimeIntervalSinceNow:scheduledTimeInSeconds];
+    NSDate *scheduledTime = [NSDate dateWithTimeIntervalSinceNow:10];
     NSString *scheduledTimeString = [formatter stringFromDate:scheduledTime];
 
 

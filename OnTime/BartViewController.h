@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 
-@interface OnTimeViewController : UIViewController <MKMapViewDelegate,
+@interface BartViewController : UIViewController <MKMapViewDelegate,
     UITableViewDataSource, UITableViewDelegate> {
     __weak IBOutlet MKMapView *userMapView;
     __weak IBOutlet UIActivityIndicatorView *activityIndicator;
