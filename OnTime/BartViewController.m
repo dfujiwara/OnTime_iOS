@@ -11,18 +11,14 @@
 #import "BartStationStore.h"
 #import "OnTimeNotification.h"
 #import "OnTimeStationMapAnnotation.h"
+#import "OnTimeUIStringFactory.h"
 
 // Navigation bar related constants
-static NSString * const OnTimeTitle = @"OnTime Bart";
+static NSString * const OnTimeTitle = @"Bart";
 
 // Table view constants
-static NSString * const sourceHeader = @"From";
-static NSString * const destinationHeader = @"To";
 
-static NSString * const defaultFromCellText = @"From: ";
-static NSString * const defaultToCellText = @"To: ";
-
-// Error titles and messages
+// Error messages
 static NSString * const invalidTripTitle = @"Not a valid trip";
 static NSString * const missingStationMessage =
     @"Please select source and destination.";
@@ -32,15 +28,11 @@ static NSString * const identicalStationMessage =
 static NSString * const nearbyStationErrorTitle = @"Could not get nearby stations.";
 static NSString * const notificationErrorTitle = @"Could not submit notification request.";
 static NSString * const errorMessage = @"Please try again later.";
-static NSString * const errorButtonTitle = @"OK";
 
 static NSString * const missingParameterMessage = @"Not all parameters were provided.";
 static NSString * const failedToCreateNoficationMessage = @"Failed to create notification.";
 static NSString * const noTimeAvailableMessage = @"No time is available.";
 static NSString * const defaultNotificationErrorMessage= @"An error occurred. Please try again.";
-
-// Notification related constants
-static NSString * const noNotificationTitle = @"No Notification";
 
 // Notification data dictionary keys
 static NSString * const successKey = @"success";
@@ -207,11 +199,12 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         if (err) {
             // display the error message if retrieve nearby stations was
             // not successful
-            UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:nearbyStationErrorTitle
-                                                                 message:errorMessage
-                                                                delegate:nil
-                                                       cancelButtonTitle:errorButtonTitle
-                                                       otherButtonTitles:nil];
+            UIAlertView *errorAlert = [[UIAlertView alloc]
+                                       initWithTitle:nearbyStationErrorTitle
+                                       message:errorMessage
+                                       delegate:nil
+                                       cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
+                                       otherButtonTitles:nil];
             [errorAlert show];
         } else {
             // Also update the distance label to the source station if the
@@ -258,17 +251,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         [cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
     }
 
-    NSString *cellText = nil;
-    switch (indexPath.section) {
-    case 0:
-        cellText = defaultFromCellText;
-        break;
-    case 1:
-        cellText = defaultToCellText;
-        break;
-    default:
-        cellText = defaultFromCellText;
-    }
+    NSString *cellText = [OnTimeUIStringFactory prefixStationPrefix:indexPath.section];
 
     // if station is selected show the station name as the cell text
     Station *station = [[BartStationStore sharedStore] getSelecedStation:indexPath.section];
@@ -291,11 +274,11 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
     Station *selectedStation = nil;
     if (groupIndex == 0) {
         stations = [[BartStationStore sharedStore] nearbyStations:limitedStationNumber];
-        titleString = sourceHeader;
+        titleString = [OnTimeUIStringFactory fromHeaderString];
         selectedStation = [[BartStationStore sharedStore] getSelecedStation:0];
     } else {
         stations = [[BartStationStore sharedStore] nearbyStations];
-        titleString = destinationHeader;
+        titleString = [OnTimeUIStringFactory toHeaderString];
         selectedStation = [[BartStationStore sharedStore] getSelecedStation:1];
     }
     
@@ -368,19 +351,21 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
                                                       getSelecedStation:1];
     // error checking
     if (!sourceStation || !destinationStation){
-        UIAlertView *av = [[UIAlertView alloc] initWithTitle:invalidTripTitle
-                                                     message:missingStationMessage
-                                                    delegate:nil
-                                           cancelButtonTitle:errorButtonTitle
-                                           otherButtonTitles:nil];
+        UIAlertView *av = [[UIAlertView alloc]
+                           initWithTitle:invalidTripTitle
+                           message:missingStationMessage
+                           delegate:nil
+                           cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
+                           otherButtonTitles:nil];
         [av show];
         return;
     } else if (sourceStation == destinationStation) {
-        UIAlertView *av = [[UIAlertView alloc] initWithTitle:invalidTripTitle
-                                                     message:identicalStationMessage
-                                                    delegate:nil
-                                           cancelButtonTitle:errorButtonTitle
-                                           otherButtonTitles:nil];
+        UIAlertView *av = [[UIAlertView alloc]
+                           initWithTitle:invalidTripTitle
+                           message:identicalStationMessage
+                           delegate:nil
+                           cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
+                           otherButtonTitles:nil];
         [av show];
         return;
     }
@@ -435,11 +420,12 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         if (err){
             // display the error message if retrieve nearby stations was
             // not successful
-            UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:notificationErrorTitle
-                                                                 message:errorMessage
-                                                                delegate:nil
-                                                       cancelButtonTitle:errorButtonTitle
-                                                       otherButtonTitles:nil];
+            UIAlertView *errorAlert = [[UIAlertView alloc]
+                                       initWithTitle:notificationErrorTitle
+                                       message:errorMessage
+                                       delegate:nil
+                                       cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
+                                       otherButtonTitles:nil];
             [errorAlert show];
             return;
         }
@@ -471,11 +457,12 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
                 noNotificationErrorMessage = defaultNotificationErrorMessage;
                 break;
         }
-        UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:noNotificationTitle
-                                                             message:noNotificationErrorMessage
-                                                            delegate:nil
-                                                   cancelButtonTitle:errorButtonTitle
-                                                   otherButtonTitles:nil];
+        UIAlertView *errorAlert = [[UIAlertView alloc]
+                                   initWithTitle:[OnTimeUIStringFactory notificationTitle]
+                                   message:noNotificationErrorMessage
+                                   delegate:nil
+                                   cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
+                                   otherButtonTitles:nil];
         [errorAlert show];
         return;
     }

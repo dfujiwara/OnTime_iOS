@@ -19,4 +19,5 @@
 
 @property (nonatomic, copy) NSURLRequest *request;
 @property (nonatomic, copy) void (^completionBlock)(id obj, NSError *err);
+
 @end

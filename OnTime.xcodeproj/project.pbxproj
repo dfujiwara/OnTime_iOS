@@ -17,6 +17,7 @@
 		6A3CC487160EEE7800F4A12A /* BartViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6A3CC485160EEE7800F4A12A /* BartViewController.xib */; };
 		6A3CC48E160EEF5300F4A12A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC48D160EEF5300F4A12A /* MapKit.framework */; };
 		6A3CC490160EEFD200F4A12A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC48F160EEFD200F4A12A /* CoreLocation.framework */; };
+		6A4EBD5E168172C10078A538 /* OnTimeUIStringFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A4EBD5D168172C10078A538 /* OnTimeUIStringFactory.m */; };
 		6A6F0A06165EE74C00423239 /* OnTimeStationMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A6F0A05165EE74C00423239 /* OnTimeStationMapAnnotation.m */; };
 		6A9E6CD51614298200CFF4DD /* StationChoiceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A9E6CD31614298200CFF4DD /* StationChoiceViewController.m */; };
 		6A9E6D1B1616CECC00CFF4DD /* Station.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A9E6D1A1616CECC00CFF4DD /* Station.m */; };
@@ -43,6 +44,8 @@
 		6A3CC486160EEE7800F4A12A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/BartViewController.xib; sourceTree = "<group>"; };
 		6A3CC48D160EEF5300F4A12A /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		6A3CC48F160EEFD200F4A12A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		6A4EBD5C168172C10078A538 /* OnTimeUIStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeUIStringFactory.h; sourceTree = "<group>"; };
+		6A4EBD5D168172C10078A538 /* OnTimeUIStringFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnTimeUIStringFactory.m; sourceTree = "<group>"; };
 		6A6F0A04165EE74C00423239 /* OnTimeStationMapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeStationMapAnnotation.h; sourceTree = "<group>"; };
 		6A6F0A05165EE74C00423239 /* OnTimeStationMapAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnTimeStationMapAnnotation.m; sourceTree = "<group>"; };
 		6A9E6CD21614298200CFF4DD /* StationChoiceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StationChoiceViewController.h; sourceTree = "<group>"; };
@@ -127,6 +130,8 @@
 				6A3CC479160EEE7700F4A12A /* InfoPlist.strings */,
 				6A3CC47C160EEE7700F4A12A /* main.m */,
 				6A3CC47E160EEE7700F4A12A /* OnTime-Prefix.pch */,
+				6A4EBD5C168172C10078A538 /* OnTimeUIStringFactory.h */,
+				6A4EBD5D168172C10078A538 /* OnTimeUIStringFactory.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -245,6 +250,7 @@
 				6A9E6D2A1616D57300CFF4DD /* BartStationStore.m in Sources */,
 				6AA5B21B16293E79001FA806 /* OnTimeNotification.m in Sources */,
 				6A6F0A06165EE74C00423239 /* OnTimeStationMapAnnotation.m in Sources */,
+				6A4EBD5E168172C10078A538 /* OnTimeUIStringFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

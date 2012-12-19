@@ -9,6 +9,7 @@
 #import "OnTimeAppDelegate.h"
 #import "BartViewController.h"
 #import "OnTimeNotification.h"
+#import "OnTimeUIStringFactory.h"
 
 // Notification name for the local notification for the departure time.
 static NSString * const kPendingNotificationName = @"kPendingNotification";
@@ -131,7 +132,7 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
     // Note that it's run asychronously to avoid any dead lock on the main
     // queue since the notification is dispatched on the main queue.
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIAlertView *av = [[UIAlertView alloc] initWithTitle:kNotificationTitle
+        UIAlertView *av = [[UIAlertView alloc] initWithTitle:[OnTimeUIStringFactory notificationTitle]
                                                      message:[localNotification alertBody]
                                                     delegate:self
                                            cancelButtonTitle:@"OK"
@@ -139,7 +140,7 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
         if ([localNotification.userInfo[kSnoozableKey] boolValue]) {
             // store the user info of the given notification
             receivedNotificationData_ = localNotification.userInfo;
-            [av addButtonWithTitle:kSnoozeLabel];
+            [av addButtonWithTitle:[OnTimeUIStringFactory snoozeLabel]];
         }
         [av show];
     });
@@ -151,7 +152,7 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
-    if ([buttonTitle compare:kSnoozeLabel] == NSOrderedSame) {
+    if ([buttonTitle compare:[OnTimeUIStringFactory snoozeLabel]] == NSOrderedSame) {
         // Let the view controller handle the notification.
         [onTimeViewController_ processPendingNotification:receivedNotificationData_];
         
