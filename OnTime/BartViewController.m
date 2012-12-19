@@ -210,7 +210,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
             // Also update the distance label to the source station if the
             // selection has been made.
             BartStation *sourceStation = (BartStation *)[[BartStationStore sharedStore]
-                                                         getSelecedStation:0];
+                                                         getSelectedStation:0];
             if (sourceStation) {
                 CLLocation *stationLocation =
                     [[CLLocation alloc] initWithCoordinate:sourceStation.location
@@ -254,7 +254,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
     NSString *cellText = [OnTimeUIStringFactory prefixStationPrefix:indexPath.section];
 
     // if station is selected show the station name as the cell text
-    Station *station = [[BartStationStore sharedStore] getSelecedStation:indexPath.section];
+    Station *station = [[BartStationStore sharedStore] getSelectedStation:indexPath.section];
     if (station){
         cellText = [cellText stringByAppendingString:station.stationName];
     }
@@ -275,11 +275,11 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
     if (groupIndex == 0) {
         stations = [[BartStationStore sharedStore] nearbyStations:limitedStationNumber];
         titleString = [OnTimeUIStringFactory fromHeaderString];
-        selectedStation = [[BartStationStore sharedStore] getSelecedStation:0];
+        selectedStation = [[BartStationStore sharedStore] getSelectedStation:0];
     } else {
         stations = [[BartStationStore sharedStore] nearbyStations];
         titleString = [OnTimeUIStringFactory toHeaderString];
-        selectedStation = [[BartStationStore sharedStore] getSelecedStation:1];
+        selectedStation = [[BartStationStore sharedStore] getSelectedStation:1];
     }
     
     // block code to execute when the selection is made
@@ -293,7 +293,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         // Create a map annotation that points to the selected station
         // destination.
         Station *selectedStation =
-            [[BartStationStore sharedStore] getSelecedStation:groupIndex];
+            [[BartStationStore sharedStore] getSelectedStation:groupIndex];
 
         OnTimeStationMapAnnotation *stationAnnotation = nil;
         if (groupIndex == 0) {
@@ -346,9 +346,9 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
     requestData[distanceModeKey] = @(methodToGetToStation.selectedSegmentIndex);
     
     BartStation *sourceStation = (BartStation *)[[BartStationStore sharedStore]
-                                                 getSelecedStation:0];
+                                                 getSelectedStation:0];
     BartStation *destinationStation = (BartStation *)[[BartStationStore sharedStore]
-                                                      getSelecedStation:1];
+                                                      getSelectedStation:1];
     // error checking
     if (!sourceStation || !destinationStation){
         UIAlertView *av = [[UIAlertView alloc]
@@ -388,9 +388,9 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
 
 - (void)configureUI {
     BartStation *sourceStation = (BartStation *)[[BartStationStore sharedStore]
-                                                 getSelecedStation:0];
+                                                 getSelectedStation:0];
     BartStation *destinationStation = (BartStation *)[[BartStationStore sharedStore]
-                                                      getSelecedStation:1];
+                                                      getSelectedStation:1];
     if (!sourceStation || !destinationStation){
         requestNotificationButton.enabled = NO;
         distanceLabel.hidden = YES;

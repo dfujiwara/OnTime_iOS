@@ -9,19 +9,9 @@
 #import "BartStationStore.h"
 #import "OnTimeConnection.h"
 #import "BartStation.h"
+#import "OnTimeConstants.h"
 
 const NSInteger limitedStationNumber = 3;
-
-static NSString * const bartStationUrlTemplate = @"http://ontime.jit.su/bart/locate/?lat=%f&long=%f";
-static NSString * const bartNotificationUrl = @"http://ontime.jit.su/bart/notify";
-
-// keys for stations json objects
-static NSString * const successKey = @"success";
-static NSString * const stationDictKey = @"stations";
-static NSString * const stationIdKey = @"id";
-static NSString * const stationNameKey = @"name";
-static NSString * const stationAddressKey = @"address";
-static NSString * const stationLocationKey = @"location";
 
 // keys for notification request
 NSString * const distanceModeKey = @"mode";
@@ -31,7 +21,6 @@ NSString * const latitudeKey = @"lat";
 NSString * const longitudeKey = @"long"; 
 
 @implementation BartStationStore
-@synthesize nearbyStations;
 
 + (BartStationStore *)sharedStore {
     static BartStationStore *stationStore = nil;
@@ -49,15 +38,6 @@ NSString * const longitudeKey = @"long";
 - (void)getNearbyStations:(CLLocation *)currentLocation
            withCompletion: (void (^)(NSArray *stations, NSError *err))block {
 
-    // set up the HTTP GET request to retrieve nearby stations of the given
-    // location.
-    CLLocationCoordinate2D coords = currentLocation.coordinate;
-    NSString *urlString = [NSString stringWithFormat:bartStationUrlTemplate,
-                           coords.latitude, coords.longitude];
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSURLRequest *req = [NSURLRequest requestWithURL:url];
-    OnTimeConnection *connection = [[OnTimeConnection alloc] initWithRequest:req];
-
     // define an outer completion block.
     // this block processes the HTTP response and stores the retrieved nearby
     // stations; it also calls the input parameter block to perform any additional
@@ -67,16 +47,16 @@ NSString * const longitudeKey = @"long";
         // First clear out the nearby stations.
         [self.nearbyStations removeAllObjects];
 
-        NSValue *isSuccessful = stationData[successKey];
+        NSValue *isSuccessful = stationData[kSuccessKey];
         if (!err){
             if (isSuccessful){
                 // process stations                
-                for (NSDictionary *stationDict in stationData[stationDictKey]) {
+                for (NSDictionary *stationDict in stationData[kStationDictKey]) {
                     BartStation *station = [[BartStation alloc] init];
-                    station.stationId = stationDict[stationIdKey];
-                    station.stationName = stationDict[stationNameKey];
-                    station.streetAddress = stationDict[stationAddressKey];
-                    NSArray *locationCoords = stationDict[stationLocationKey];
+                    station.stationId = stationDict[kStationIdKey];
+                    station.stationName = stationDict[kStationNameKey];
+                    station.streetAddress = stationDict[kStationAddressKey];
+                    NSArray *locationCoords = stationDict[kStationLocationKey];
                     if (locationCoords && [locationCoords count] == 2) {
                          station.location = CLLocationCoordinate2DMake([locationCoords[1] floatValue],
                                                                        [locationCoords[0] floatValue]);
@@ -95,20 +75,25 @@ NSString * const longitudeKey = @"long";
             block(self.nearbyStations, err);
         }
     };
-    [connection setCompletionBlock:processNearbyStations];
-    [connection start];
-    NSLog(@"get location for %@", currentLocation);
+
+    // set up the HTTP GET request to retrieve nearby stations of the given
+    // location.
+    CLLocationCoordinate2D coords = currentLocation.coordinate;
+    NSString *urlString = [NSString stringWithFormat:kStationUrlTemplate,
+                           kBartString,
+                           coords.latitude, coords.longitude];
+
+    [self issueNearbyStationRequest:urlString
+                     withCompletion:processNearbyStations];
 }
 
-- (NSArray *)nearbyStations:(NSInteger)numStations {
-    NSArray *stations = self.nearbyStations;
-    // making sure that numStations never exceeds the available station number
-    numStations = numStations > [stations count] ? [stations count] : numStations;
-
-    NSRange range;
-    range.location = 0;
-    range.length = numStations;
-    return [stations subarrayWithRange:range];
+- (void)requestNotification:(NSDictionary *)requestData
+             withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block {
+    NSString *urlString = [NSString stringWithFormat:kNotificationUrl,
+                           kBartString];
+    [self issueNotificationRequest:urlString
+                          withData:requestData
+                    withCompletion:block];
 }
 
 - (void)selectStation:(NSInteger)stationIndex inGroup:(NSInteger)groupIndex {
@@ -128,7 +113,7 @@ NSString * const longitudeKey = @"long";
     }
 }
 
--(Station *)getSelecedStation:(NSInteger)groupIndex {
+-(Station *)getSelectedStation:(NSInteger)groupIndex {
     NSNumber *selectedStationIndex = self.selectedStationIndices[groupIndex];
     NSInteger index = [selectedStationIndex integerValue];
     if (index < 0){
@@ -146,22 +131,4 @@ NSString * const longitudeKey = @"long";
     }
 }
 
-- (void)requestNotification:(NSDictionary *)requestData
-             withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block {
-    // set up the HTTP POST request for the notification request
-    NSURL *url = [NSURL URLWithString:bartNotificationUrl];
-    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:requestData
-                                                       options:0
-                                                         error:nil];
-    
-    [req setHTTPMethod:@"POST"];
-    [req setHTTPBody:postData];
-    [req setValue:@"application/json" forHTTPHeaderField:@"content-type"];
-    
-    OnTimeConnection *connection = [[OnTimeConnection alloc] initWithRequest:req];
-    [connection setCompletionBlock:block];
-    [connection start];
-    NSLog(@"request notification for %@", requestData);
-}
 @end

@@ -18,6 +18,10 @@
 		6A3CC48E160EEF5300F4A12A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC48D160EEF5300F4A12A /* MapKit.framework */; };
 		6A3CC490160EEFD200F4A12A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC48F160EEFD200F4A12A /* CoreLocation.framework */; };
 		6A4EBD5E168172C10078A538 /* OnTimeUIStringFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A4EBD5D168172C10078A538 /* OnTimeUIStringFactory.m */; };
+		6A4EBD651681A6F30078A538 /* MuniStationStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A4EBD641681A6F30078A538 /* MuniStationStore.m */; };
+		6A4EBD681681A7CC0078A538 /* MuniStation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A4EBD671681A7CC0078A538 /* MuniStation.m */; };
+		6A4EBD6B1681D7240078A538 /* OnTimeConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A4EBD6A1681D7240078A538 /* OnTimeConstants.m */; };
+		6A4EBD711681E5AB0078A538 /* OnTimeAbstractStationStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A4EBD701681E5AB0078A538 /* OnTimeAbstractStationStore.m */; };
 		6A6F0A06165EE74C00423239 /* OnTimeStationMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A6F0A05165EE74C00423239 /* OnTimeStationMapAnnotation.m */; };
 		6A9E6CD51614298200CFF4DD /* StationChoiceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A9E6CD31614298200CFF4DD /* StationChoiceViewController.m */; };
 		6A9E6D1B1616CECC00CFF4DD /* Station.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A9E6D1A1616CECC00CFF4DD /* Station.m */; };
@@ -46,6 +50,14 @@
 		6A3CC48F160EEFD200F4A12A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		6A4EBD5C168172C10078A538 /* OnTimeUIStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeUIStringFactory.h; sourceTree = "<group>"; };
 		6A4EBD5D168172C10078A538 /* OnTimeUIStringFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnTimeUIStringFactory.m; sourceTree = "<group>"; };
+		6A4EBD631681A6F30078A538 /* MuniStationStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MuniStationStore.h; sourceTree = "<group>"; };
+		6A4EBD641681A6F30078A538 /* MuniStationStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MuniStationStore.m; sourceTree = "<group>"; };
+		6A4EBD661681A7CC0078A538 /* MuniStation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MuniStation.h; sourceTree = "<group>"; };
+		6A4EBD671681A7CC0078A538 /* MuniStation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MuniStation.m; sourceTree = "<group>"; };
+		6A4EBD691681D7240078A538 /* OnTimeConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeConstants.h; sourceTree = "<group>"; };
+		6A4EBD6A1681D7240078A538 /* OnTimeConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnTimeConstants.m; sourceTree = "<group>"; };
+		6A4EBD6F1681E5AB0078A538 /* OnTimeAbstractStationStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeAbstractStationStore.h; sourceTree = "<group>"; };
+		6A4EBD701681E5AB0078A538 /* OnTimeAbstractStationStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnTimeAbstractStationStore.m; sourceTree = "<group>"; };
 		6A6F0A04165EE74C00423239 /* OnTimeStationMapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeStationMapAnnotation.h; sourceTree = "<group>"; };
 		6A6F0A05165EE74C00423239 /* OnTimeStationMapAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnTimeStationMapAnnotation.m; sourceTree = "<group>"; };
 		6A9E6CD21614298200CFF4DD /* StationChoiceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StationChoiceViewController.h; sourceTree = "<group>"; };
@@ -132,6 +144,8 @@
 				6A3CC47E160EEE7700F4A12A /* OnTime-Prefix.pch */,
 				6A4EBD5C168172C10078A538 /* OnTimeUIStringFactory.h */,
 				6A4EBD5D168172C10078A538 /* OnTimeUIStringFactory.m */,
+				6A4EBD691681D7240078A538 /* OnTimeConstants.h */,
+				6A4EBD6A1681D7240078A538 /* OnTimeConstants.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -147,6 +161,8 @@
 				6AA5B21A16293E79001FA806 /* OnTimeNotification.m */,
 				6A6F0A04165EE74C00423239 /* OnTimeStationMapAnnotation.h */,
 				6A6F0A05165EE74C00423239 /* OnTimeStationMapAnnotation.m */,
+				6A4EBD661681A7CC0078A538 /* MuniStation.h */,
+				6A4EBD671681A7CC0078A538 /* MuniStation.m */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -169,8 +185,12 @@
 			isa = PBXGroup;
 			children = (
 				6A9E6D271616D4C200CFF4DD /* OnTimeManagerProtocol.h */,
+				6A4EBD6F1681E5AB0078A538 /* OnTimeAbstractStationStore.h */,
+				6A4EBD701681E5AB0078A538 /* OnTimeAbstractStationStore.m */,
 				6A9E6D281616D57200CFF4DD /* BartStationStore.h */,
 				6A9E6D291616D57200CFF4DD /* BartStationStore.m */,
+				6A4EBD631681A6F30078A538 /* MuniStationStore.h */,
+				6A4EBD641681A6F30078A538 /* MuniStationStore.m */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
@@ -251,6 +271,10 @@
 				6AA5B21B16293E79001FA806 /* OnTimeNotification.m in Sources */,
 				6A6F0A06165EE74C00423239 /* OnTimeStationMapAnnotation.m in Sources */,
 				6A4EBD5E168172C10078A538 /* OnTimeUIStringFactory.m in Sources */,
+				6A4EBD651681A6F30078A538 /* MuniStationStore.m in Sources */,
+				6A4EBD681681A7CC0078A538 /* MuniStation.m in Sources */,
+				6A4EBD6B1681D7240078A538 /* OnTimeConstants.m in Sources */,
+				6A4EBD711681E5AB0078A538 /* OnTimeAbstractStationStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
