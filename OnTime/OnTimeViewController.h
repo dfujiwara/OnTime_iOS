@@ -16,6 +16,7 @@
     __weak IBOutlet UIButton *requestNotificationButton;
     __weak IBOutlet UISegmentedControl *methodToGetToStation;
     __weak IBOutlet UITableView *tableView;
+    __weak IBOutlet UILabel *distanceLabel;
 }
 
 // Action for when the notification button is pressed.

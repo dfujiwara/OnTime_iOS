@@ -56,6 +56,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
     OnTimeStationMapAnnotation *sourceStationAnnotation_;
     OnTimeStationMapAnnotation *targetStationAnnotation_;
     CLLocation *lastRecordedLocation_;
+    UIView *distanceLabelBackgroundView_;
 }
 
 // Handles the notification data retrieved from the server response.
@@ -64,9 +65,14 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
 // Makes a notification request to the server with the given request data.
 - (void)makeNotificationRequest:(NSDictionary *)requestData;
 
-
 // Configures the UI given the current state of the view controlloer.
 - (void)configureUI;
+
+// Calculates the distance between the given two locations and
+// updates the distance label on the map to indicate how far the user is
+// from the selected starting station.
+- (void)updateDistanceToStationFrom:(CLLocation *)fromLocation
+                                 to:(CLLocation *)stationLocation;
 
 @end
 
@@ -100,6 +106,16 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
 
 - (void)viewDidLoad {
     [userMapView setShowsUserLocation:YES];
+
+    distanceLabelBackgroundView_ = [[UIView alloc] initWithFrame:distanceLabel.frame];
+    distanceLabelBackgroundView_.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin |
+    UIViewAutoresizingFlexibleTopMargin;
+    distanceLabelBackgroundView_.backgroundColor = [UIColor colorWithWhite:0.58
+                                                                     alpha:.75];
+    [userMapView addSubview:distanceLabelBackgroundView_];
+
+    // UI needs to be configured approriately when the view is loaded (e.g.
+    // enable or disable based on the previous state).
     [self configureUI];
 }
 
@@ -114,6 +130,23 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
             // Animate the map region change since when the table rows update is
             // required, then it also means that the map annotation location
             // has changed.
+            MKMapPoint currentPoint = MKMapPointForCoordinate(userMapView.userLocation.coordinate);
+            MKMapPoint stationPoint = MKMapPointForCoordinate(sourceStationAnnotation_.coordinate);
+
+            // Generate map rect from those two map points.
+            MKMapRect mapRect = MKMapRectMake (fmin(currentPoint.x, stationPoint.x),
+                                          fmin(currentPoint.y, stationPoint.y),
+                                          fabs(currentPoint.x - stationPoint.x),
+                                          fabs(currentPoint.y - stationPoint.y));
+
+            // Determine the mid point in the map rect.
+            MKMapPoint middlePoint;
+            middlePoint.x = MKMapRectGetMidX(mapRect);
+            middlePoint.y = MKMapRectGetMidY(mapRect);
+            CLLocationCoordinate2D centerCoordinate = MKCoordinateForMapPoint(middlePoint);
+
+
+            // Calculate the distance between those two points.
             CLLocation *stationLocation =
                 [[CLLocation alloc] initWithCoordinate:sourceStationAnnotation_.coordinate
                                               altitude:0
@@ -122,10 +155,14 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
                                              timestamp:[NSDate date]];
             CLLocationDistance distance = [userMapView.userLocation.location
                                            distanceFromLocation:stationLocation];
-            MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(userMapView.userLocation.coordinate,
-                                                                           distance * 2,
-                                                                           distance * 2);
+            MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerCoordinate,
+                                                                           distance,
+                                                                           distance);
             [userMapView setRegion:region animated:YES];
+
+            // Also update the distance label to the source station.
+            [self updateDistanceToStationFrom:userMapView.userLocation.location
+                                           to:stationLocation];
         }
 
         // Animate the row updates
@@ -176,6 +213,21 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
                                                        cancelButtonTitle:errorButtonTitle
                                                        otherButtonTitles:nil];
             [errorAlert show];
+        } else {
+            // Also update the distance label to the source station if the
+            // selection has been made.
+            BartStation *sourceStation = (BartStation *)[[BartStationStore sharedStore]
+                                                         getSelecedStation:0];
+            if (sourceStation) {
+                CLLocation *stationLocation =
+                    [[CLLocation alloc] initWithCoordinate:sourceStation.location
+                                                  altitude:0
+                                        horizontalAccuracy:0
+                                          verticalAccuracy:-1
+                                                 timestamp:[NSDate date]];
+                [self updateDistanceToStationFrom:userMapView.userLocation.location
+                                               to:stationLocation];
+            }
         }
     };
     [[BartStationStore sharedStore] getNearbyStations:lastRecordedLocation_
@@ -273,10 +325,10 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         stationAnnotation.title = selectedStation.stationName;
         stationAnnotation.subtitle = selectedStation.streetAddress;
 
-        // If the callout view is displayed, deselecting the
-        // annotation closes it. This is done so that the call out view
-        // is not going to be consistently shown even when we change
-        // the annotation title dynamically.
+        // If the callout view showing the station address is displayed,
+        // deselecting the annotation closes it. This is done so that
+        // the call out view is not going to be consistently shown even when we
+        // change the annotation title dynamically.
         if ([userMapView.annotations containsObject:stationAnnotation]) {
             [userMapView deselectAnnotation:stationAnnotation
                                    animated:YES];
@@ -285,7 +337,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         }
 
         // Since the station selection has been made, the UI needs to be
-        // configured.
+        // configured (e.g. enabled appropriately).
         [self configureUI];
     };
     StationChoiceViewController *scvc = [[StationChoiceViewController alloc]
@@ -356,9 +408,25 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
                                                       getSelecedStation:1];
     if (!sourceStation || !destinationStation){
         requestNotificationButton.enabled = NO;
+        distanceLabel.hidden = YES;
+        distanceLabelBackgroundView_.hidden = YES;
     } else {
         requestNotificationButton.enabled = YES;
     }
+}
+
+- (void)updateDistanceToStationFrom:(CLLocation *)fromLocation
+                                 to:(CLLocation *)stationLocation {
+    static CGFloat conversionRateFromMetersToMiles = 0.000621371;
+    CLLocationDistance distance = [fromLocation
+                                   distanceFromLocation:stationLocation];
+    CGFloat distanceInMiles = distance * conversionRateFromMetersToMiles;
+    NSLog(@"distance is %f", distanceInMiles);
+    NSString *distanceStringTemplate = @"%.1f mi";
+    distanceLabel.text = [NSString stringWithFormat:distanceStringTemplate,
+                          distanceInMiles];
+    distanceLabel.hidden = NO;
+    distanceLabelBackgroundView_.hidden = NO;
 }
 
 - (void)makeNotificationRequest:(NSDictionary *)requestData {
@@ -430,7 +498,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
                                      targetStationAnnotation_]];
 
     // Since the station selection has been reset, the UI needs to be
-    // configured.
+    // configured to be disabled.
     [self configureUI];
 }
 
