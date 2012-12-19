@@ -127,17 +127,22 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 }
 
 - (void)displayLocalNotification:(UILocalNotification *)localNotification {
-    UIAlertView *av = [[UIAlertView alloc] initWithTitle:kNotificationTitle
-                                                 message:[localNotification alertBody]
-                                                delegate:self
-                                       cancelButtonTitle:@"OK"
-                                       otherButtonTitles:nil];
-    if ([localNotification.userInfo[kSnoozableKey] boolValue]) {
-        // store the user info of the given notification
-        receivedNotificationData_ = localNotification.userInfo;
-        [av addButtonWithTitle:kSnoozeLabel];
-    }
-    [av show];
+    // Make sure that UI related operations are done on the main queue.
+    // Note that it's run asychronously to avoid any dead lock on the main
+    // queue since the notification is dispatched on the main queue.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIAlertView *av = [[UIAlertView alloc] initWithTitle:kNotificationTitle
+                                                     message:[localNotification alertBody]
+                                                    delegate:self
+                                           cancelButtonTitle:@"OK"
+                                           otherButtonTitles:nil];
+        if ([localNotification.userInfo[kSnoozableKey] boolValue]) {
+            // store the user info of the given notification
+            receivedNotificationData_ = localNotification.userInfo;
+            [av addButtonWithTitle:kSnoozeLabel];
+        }
+        [av show];
+    });
 }
 
 
