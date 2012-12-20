@@ -9,6 +9,8 @@
 #import "MuniStationStore.h"
 #import "OnTimeConnection.h"
 #import "OnTimeConstants.h"
+#import "OnTimeUIStringFactory.h"
+#import "OnTimeNotification.h"
 
 @implementation MuniStationStore
 
@@ -23,7 +25,7 @@
 }
 
 - (void)getNearbyStations:(CLLocation *)currentLocation
-           withCompletion: (void (^)(NSArray *stations, NSError *err))block {
+           withCompletion: (void (^)(NSError *err))block {
 
     // define an outer completion block.
     // this block processes the HTTP response and stores the retrieved nearby
@@ -53,13 +55,15 @@
                 }
             } else {
                 NSLog(@"success returned false");
-                err = [NSError errorWithDomain:@"Server error" code:1 userInfo:nil];
+                err = [NSError errorWithDomain:@"Server error"
+                                          code:OnTimeErrorCodeGeneral
+                                      userInfo:nil];
             }
         } else {
             NSLog(@"error was returned for getNearbyStations: %@", err);
         }
         if (block){
-            block(self.nearbyStations, err);
+            block(err);
         }
     };
 
@@ -74,12 +78,66 @@
 }
 
 - (void)requestNotification:(NSDictionary *)requestData
-             withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block {
+             withCompletion:(void (^)(NSError *err))block {
     NSString *urlString = [NSString stringWithFormat:kNotificationUrl,
                            kMuniString];
+
+    void (^registerNotification)(NSDictionary *notificationData, NSError *err) =
+    ^void(NSDictionary *notificationData, NSError *err) {
+        if (err){
+            NSDictionary *userInfo =
+            @{kErrorTitleKey: [OnTimeUIStringFactory notificationErrorTitle],
+        kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                                object:nil
+                                                              userInfo:userInfo];
+        } else {
+            NSLog(@"response data is %@", notificationData);
+            id successValue = notificationData[kSuccessKey];
+            if (![successValue boolValue]){
+                NSString *errorMessage = nil;
+                int errorCode = [notificationData[kErrorCodeKey] intValue];
+                switch (errorCode) {
+                    case OnTimeErrorMissingParameter:
+                        errorMessage = [OnTimeUIStringFactory missingParameterErrorMessage];
+                        break;
+                    case OnTimeErrorNotificationCreationFailure:
+                        errorMessage = [OnTimeUIStringFactory failedToCreateNotificationErrorMessage];
+                        break;
+                    case OnTimeErrorNoAvailableTime:
+                        errorMessage = [OnTimeUIStringFactory noTimeAvailableErrorMessage];
+                        break;
+                    default:
+                        errorMessage = [OnTimeUIStringFactory genericErrorMessage];
+                        break;
+                }
+
+                NSDictionary *userInfo =
+                @{kErrorTitleKey: [OnTimeUIStringFactory noNotificationTitle],
+            kErrorMessageKey: errorMessage};
+                [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                                    object:nil
+                                                                  userInfo:userInfo];
+            } else {
+                // Schedule the first available notification
+                OnTimeNotification *notification =
+                [[OnTimeNotification alloc] initWithNotificationData:notificationData];
+                [notification scheduleNotification:0];
+            }
+        }
+
+        if (block) {
+            block(err);
+        }
+    };
+    
     [self issueNotificationRequest:urlString
                           withData:requestData
-                    withCompletion:block];
+                    withCompletion:registerNotification];
+}
+
+- (void)processPendingNotification:(NSDictionary *)notificationData {
+    
 }
 
 @end

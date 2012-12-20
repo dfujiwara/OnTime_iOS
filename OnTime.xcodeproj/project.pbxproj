@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6A019F071682BEBE005420D4 /* OnTimeTopViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A019F051682BEBE005420D4 /* OnTimeTopViewController.m */; };
+		6A019F081682BEBE005420D4 /* OnTimeTopViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6A019F061682BEBE005420D4 /* OnTimeTopViewController.xib */; };
 		6A3CC471160EEE7700F4A12A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC470160EEE7700F4A12A /* UIKit.framework */; };
 		6A3CC473160EEE7700F4A12A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC472160EEE7700F4A12A /* Foundation.framework */; };
 		6A3CC475160EEE7700F4A12A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3CC474160EEE7700F4A12A /* CoreGraphics.framework */; };
@@ -33,6 +35,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6A019F041682BEBE005420D4 /* OnTimeTopViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnTimeTopViewController.h; sourceTree = "<group>"; };
+		6A019F051682BEBE005420D4 /* OnTimeTopViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnTimeTopViewController.m; sourceTree = "<group>"; };
+		6A019F061682BEBE005420D4 /* OnTimeTopViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OnTimeTopViewController.xib; sourceTree = "<group>"; };
 		6A3CC46C160EEE7700F4A12A /* ontime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ontime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A3CC470160EEE7700F4A12A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		6A3CC472160EEE7700F4A12A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -177,6 +182,9 @@
 				6A3CC482160EEE7800F4A12A /* BartViewController.h */,
 				6A3CC483160EEE7800F4A12A /* BartViewController.m */,
 				6A3CC485160EEE7800F4A12A /* BartViewController.xib */,
+				6A019F041682BEBE005420D4 /* OnTimeTopViewController.h */,
+				6A019F051682BEBE005420D4 /* OnTimeTopViewController.m */,
+				6A019F061682BEBE005420D4 /* OnTimeTopViewController.xib */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -250,6 +258,7 @@
 				6A3CC47B160EEE7700F4A12A /* InfoPlist.strings in Resources */,
 				6A3CC487160EEE7800F4A12A /* BartViewController.xib in Resources */,
 				6ADF2585161D514B00CDEA2B /* Default-568h@2x.png in Resources */,
+				6A019F081682BEBE005420D4 /* OnTimeTopViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +284,7 @@
 				6A4EBD681681A7CC0078A538 /* MuniStation.m in Sources */,
 				6A4EBD6B1681D7240078A538 /* OnTimeConstants.m in Sources */,
 				6A4EBD711681E5AB0078A538 /* OnTimeAbstractStationStore.m in Sources */,
+				6A019F071682BEBE005420D4 /* OnTimeTopViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,5 @@
 //
-//  OnTimeViewController.m
+//  BartViewController.m
 //  OnTime
 //
 //  Created by Daisuke Fujiwara on 9/23/12.
@@ -21,12 +21,6 @@
     CLLocation *lastRecordedLocation_;
     UIView *distanceLabelBackgroundView_;
 }
-
-// Handles the notification data retrieved from the server response.
-- (void)handleNotificationData:(NSDictionary *)notificationData;
-
-// Makes a notification request to the server with the given request data.
-- (void)makeNotificationRequest:(NSDictionary *)requestData;
 
 // Configures the UI given the current state of the view controlloer.
 - (void)configureUI;
@@ -164,19 +158,16 @@
     [userMapView setRegion:region animated:YES];
 
     // callback method
-    void (^displayNearbyStations)(NSArray *nearbyStations, NSError *err) =
-    ^void(NSArray *nearbyStations, NSError *err){
+    void (^displayNearbyStations)(NSError *err) =
+    ^void(NSError *err){
         [activityIndicator stopAnimating];
         if (err) {
-            // display the error message if retrieve nearby stations was
-            // not successful
-            UIAlertView *errorAlert = [[UIAlertView alloc]
-                                       initWithTitle:[OnTimeUIStringFactory nearbyStationErrorTitle]
-                                       message:[OnTimeUIStringFactory genericErrorMessage]
-                                       delegate:nil
-                                       cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
-                                       otherButtonTitles:nil];
-            [errorAlert show];
+            NSDictionary *userInfo =
+                @{kErrorTitleKey: [OnTimeUIStringFactory nearbyStationErrorTitle],
+                  kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                                object:nil
+                                                              userInfo:userInfo];
         } else {
             // Also update the distance label to the source station if the
             // selection has been made.
@@ -322,22 +313,20 @@
                                                       getSelectedStation:1];
     // error checking
     if (!sourceStation || !destinationStation){
-        UIAlertView *av = [[UIAlertView alloc]
-                           initWithTitle:[OnTimeUIStringFactory invalidTripTitle]
-                           message:[OnTimeUIStringFactory missingStationErrorMessage]
-                           delegate:nil
-                           cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
-                           otherButtonTitles:nil];
-        [av show];
+        NSDictionary *userInfo =
+            @{kErrorTitleKey: [OnTimeUIStringFactory invalidTripTitle],
+              kErrorMessageKey: [OnTimeUIStringFactory missingStationErrorMessage]};
+        [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                            object:nil
+                                                          userInfo:userInfo];
         return;
     } else if (sourceStation == destinationStation) {
-        UIAlertView *av = [[UIAlertView alloc]
-                           initWithTitle:[OnTimeUIStringFactory invalidTripTitle]
-                           message:[OnTimeUIStringFactory identificalStationErrorMessage]
-                           delegate:nil
-                           cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
-                           otherButtonTitles:nil];
-        [av show];
+        NSDictionary *userInfo =
+            @{kErrorTitleKey: [OnTimeUIStringFactory invalidTripTitle],
+              kErrorMessageKey: [OnTimeUIStringFactory identificalStationErrorMessage]};
+        [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                            object:nil
+                                                          userInfo:userInfo];
         return;
     }
     
@@ -350,7 +339,25 @@
     requestData[longitudeKey] = longitude;
     requestData[latitudeKey] = latitude;
 
-    [self makeNotificationRequest:requestData];
+    void (^completionBlock)(NSError *err) = ^(NSError *err) {
+        // Reset current selection since the notification was successful
+        [[BartStationStore sharedStore] resetCurrentSelectedStations];
+        [tableView reloadData];
+
+        // Reset the segment control.
+        methodToGetToStation.selectedSegmentIndex = 0;
+
+        // Also remove the map annotations since the station selections are now
+        // resetted.
+        [userMapView removeAnnotations:@[sourceStationAnnotation_,
+         targetStationAnnotation_]];
+
+        // Since the station selection has been reset, the UI needs to be
+        // configured to be disabled.
+        [self configureUI];
+    };
+    [[BartStationStore sharedStore] requestNotification:requestData
+                                         withCompletion:completionBlock];
 }
 
 
@@ -383,109 +390,6 @@
                           distanceInMiles];
     distanceLabel.hidden = NO;
     distanceLabelBackgroundView_.hidden = NO;
-}
-
-- (void)makeNotificationRequest:(NSDictionary *)requestData {
-    void (^registerNotification)(NSDictionary *notificationData, NSError *err) =
-    ^void(NSDictionary *notificationData, NSError *err) {
-        if (err){
-            // display the error message if retrieve nearby stations was
-            // not successful
-            UIAlertView *errorAlert = [[UIAlertView alloc]
-                                       initWithTitle:[OnTimeUIStringFactory notificationErrorTitle]
-                                       message:[OnTimeUIStringFactory genericErrorMessage]
-                                       delegate:nil
-                                       cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
-                                       otherButtonTitles:nil];
-            [errorAlert show];
-            return;
-        }
-        [self handleNotificationData:notificationData];
-
-    };
-    [[BartStationStore sharedStore] requestNotification:requestData
-                                         withCompletion:registerNotification];
-}
-
-- (void)handleNotificationData:(NSDictionary *)notificationData {
-    NSLog(@"response data is %@", notificationData);
-
-    id successValue = notificationData[kSuccessKey];
-    if (![successValue boolValue]){
-        int errorCode = [notificationData[kErrorCodeKey] intValue];
-        NSString *noNotificationErrorMessage = nil;
-        switch (errorCode){
-            case 1:
-                noNotificationErrorMessage = [OnTimeUIStringFactory missingParameterErrorMessage];
-                break;
-            case 2:
-                noNotificationErrorMessage = [OnTimeUIStringFactory failedToCreateNotificationErrorMessage];
-                break;
-            case 3:
-                noNotificationErrorMessage = [OnTimeUIStringFactory noTimeAvailableErrorMessage];
-                break;
-            default:
-                noNotificationErrorMessage = [OnTimeUIStringFactory genericErrorMessage];
-                break;
-        }
-        UIAlertView *errorAlert = [[UIAlertView alloc]
-                                   initWithTitle:[OnTimeUIStringFactory noNotificationTitle]
-                                   message:noNotificationErrorMessage
-                                   delegate:nil
-                                   cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
-                                   otherButtonTitles:nil];
-        [errorAlert show];
-        return;
-    }
-
-    // Schedule the first available notification
-    OnTimeNotification *notification =
-        [[OnTimeNotification alloc] initWithNotificationData:notificationData];
-    [notification scheduleNotification:0];
-
-    // Reset current selection since the notification was successful
-    [[BartStationStore sharedStore] resetCurrentSelectedStations];
-    [tableView reloadData];
-
-    // Reset the segment control.
-    methodToGetToStation.selectedSegmentIndex = 0;
-
-    // Also remove the map annotations since the station selections are now
-    // resetted.
-    [userMapView removeAnnotations:@[sourceStationAnnotation_,
-                                     targetStationAnnotation_]];
-
-    // Since the station selection has been reset, the UI needs to be
-    // configured to be disabled.
-    [self configureUI];
-}
-
-- (void)processPendingNotification:(NSDictionary *)notificationData {
-    if (notificationData) {
-        NSLog(@"processing pending notification");
-        NSMutableDictionary *requestData = [NSMutableDictionary dictionary];
-
-        NSString *startStationId = nil;
-        NSArray *nearbyStations = [[BartStationStore sharedStore] nearbyStations:1];
-        if ([nearbyStations count] > 0) {
-            BartStation *nearbyStation = nearbyStations[0];
-            startStationId = nearbyStation.stationId;
-        } else {
-            startStationId = notificationData[kStartId];
-        }
-        requestData[sourceStationKey] = startStationId;
-        requestData[destinationStationKey] = notificationData[kDestinationId];
-
-        requestData[distanceModeKey] = notificationData[kTravelModeKey];
-        // TODO: Duplicated code.
-        CLLocationCoordinate2D coords = userMapView.userLocation.coordinate;
-        NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
-        NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
-        requestData[longitudeKey] = longitude;
-        requestData[latitudeKey] = latitude;
-
-        [self makeNotificationRequest:requestData];
-    }
 }
 
 @end

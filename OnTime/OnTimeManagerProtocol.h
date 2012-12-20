@@ -18,20 +18,23 @@
 @property (nonatomic, strong) NSArray *nearbyStations;
 
 // Given the current location, retrieves nearby stations.
-// provide the completion block to perform action after the stations are
+// Provide the completion block to perform action after the stations are
 // retrieved.
 - (void)getNearbyStations:(CLLocation *)currentLocation
-           withCompletion:(void (^)(NSArray *stations, NSError *err))block;
+           withCompletion:(void (^)(NSError *err))block;
 
 // Submits the notification request to the server.
-// provide the completion block to perform action after the notification is
-// submited and received a response.
+// Provide the completion block to perform action after the notification is
+// submitted, received a response, and scheduled to notify the user.
 - (void)requestNotification:(NSDictionary *)requestData
-             withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block;
+             withCompletion:(void (^)(NSError *err))block;
 
 // Retrieves specified number of nearby stations.
 // Note that if numStations is greater than the number of possible nearby
 // stations, it will return as many nearby station there are.
 - (NSArray *)nearbyStations:(NSInteger)numStations;
+
+// Processes a pending notification
+- (void)processPendingNotification:(NSDictionary *)notificationData;
 
 @end

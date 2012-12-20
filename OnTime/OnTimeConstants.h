@@ -26,7 +26,25 @@ extern NSString * const kStationLocationKey;
 extern NSString * const kStationUrlTemplate;
 extern NSString * const kNotificationUrl;
 
+// Notification name for the local notification for the departure time.
+extern NSString * const kPendingNotificationName;
+
+// Notification name for user visible error.
+extern NSString * const kErrorNotificationName;
+
+// Dictionary keys used in the user info of an error notification.
+extern NSString * const kErrorTitleKey;
+extern NSString * const kErrorMessageKey;
+
 // Distance threshold for the updated user location relative to
 // the previously recorded user location. If this threshold is exceeded, the
 // updated user location is processed. This is expressed in meters.
 extern const CLLocationDistance kUserLocationDistanceThreshold;
+
+// NSError error code
+typedef enum {
+    OnTimeErrorCodeGeneral = 0,
+    OnTimeErrorMissingParameter = 1,
+    OnTimeErrorNotificationCreationFailure = 2,
+    OnTimeErrorNoAvailableTime = 3
+} OnTimeErrorCode;

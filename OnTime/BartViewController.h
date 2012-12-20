@@ -1,5 +1,5 @@
 //
-//  OnTimeViewController.h
+//  BartViewController.h
 //  OnTime
 //
 //  Created by Daisuke Fujiwara on 9/23/12.
@@ -21,8 +21,5 @@
 
 // Action for when the notification button is pressed.
 - (IBAction)requestNotification:(id)sender;
-
-// Processes a pending notification
-- (void)processPendingNotification:(NSDictionary *)notificationData;
 
 @end

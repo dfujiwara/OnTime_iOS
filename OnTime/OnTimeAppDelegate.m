@@ -7,19 +7,17 @@
 //
 
 #import "OnTimeAppDelegate.h"
-#import "BartViewController.h"
 #import "OnTimeNotification.h"
 #import "OnTimeUIStringFactory.h"
-
-// Notification name for the local notification for the departure time.
-static NSString * const kPendingNotificationName = @"kPendingNotification";
+#import "OnTimeTopViewController.h"
+#import "BartStationStore.h"
+#import "OnTimeConstants.h"
 
 // Dictionary key used to store local notification in the NSNotification's
 // user info object.
 static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 @interface OnTimeAppDelegate () {
-    BartViewController *onTimeViewController_;
     // TODO: is this safe to keep only one instance of object?
     NSDictionary *receivedNotificationData_;
     NSOperationQueue *notificationHandlingQueue_;
@@ -41,11 +39,12 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     [self registerNotifications];
-    onTimeViewController_ = [[BartViewController alloc] initWithNibName:nil
-                                                                 bundle:nil];
+
+    OnTimeTopViewController *topViewController =
+        [[OnTimeTopViewController alloc] initWithNibName:nil bundle:nil];
 
     UINavigationController *navController =
-        [[UINavigationController alloc] initWithRootViewController:onTimeViewController_];
+        [[UINavigationController alloc] initWithRootViewController:topViewController];
     
     self.window.rootViewController = navController;
     [self.window makeKeyAndVisible];
@@ -73,30 +72,25 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
                                                       userInfo:@{kLocalNotificationKey:notification}];
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
-{
+- (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
+- (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
+- (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
+- (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application
-{
+- (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
@@ -105,6 +99,7 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 
 - (void)registerNotifications {
+    // Register transit notification related notification
     if (!notificationHandlingQueue_) {
         notificationHandlingQueue_ = [[NSOperationQueue alloc] init];
     }
@@ -125,6 +120,22 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
          }
          [self displayLocalNotification:localNotification];
      }];
+
+    // Register error handling notification
+    [[NSNotificationCenter defaultCenter]
+     addObserverForName:kErrorNotificationName
+     object:nil
+     queue:[NSOperationQueue currentQueue]
+     usingBlock:^(NSNotification *notification) {
+         NSDictionary *userInfo = notification.userInfo;
+         UIAlertView *errorAlert = [[UIAlertView alloc]
+                                    initWithTitle:userInfo[kErrorTitleKey]
+                                    message:userInfo[kErrorMessageKey]
+                                    delegate:nil
+                                    cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
+                                    otherButtonTitles:nil];
+         [errorAlert show];
+     }];
 }
 
 - (void)displayLocalNotification:(UILocalNotification *)localNotification {
@@ -135,7 +146,7 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
         UIAlertView *av = [[UIAlertView alloc] initWithTitle:[OnTimeUIStringFactory notificationTitle]
                                                      message:[localNotification alertBody]
                                                     delegate:self
-                                           cancelButtonTitle:@"OK"
+                                           cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
                                            otherButtonTitles:nil];
         if ([localNotification.userInfo[kSnoozableKey] boolValue]) {
             // store the user info of the given notification
@@ -153,8 +164,8 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
     if ([buttonTitle compare:[OnTimeUIStringFactory snoozeLabel]] == NSOrderedSame) {
-        // Let the view controller handle the notification.
-        [onTimeViewController_ processPendingNotification:receivedNotificationData_];
+        // Let the station store handle the notification.
+        [[BartStationStore sharedStore] processPendingNotification:receivedNotificationData_];
         
         // reset the notification info
         receivedNotificationData_ = nil;

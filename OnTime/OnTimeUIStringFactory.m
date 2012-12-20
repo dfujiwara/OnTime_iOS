@@ -99,12 +99,6 @@
 
 #pragma mark - user input error messages
 
-
-+ (NSString *)noNotificationTitle {
-    return NSLocalizedString(@"No notification",
-                             @"Message title for no notification information");
-}
-
 + (NSString *)invalidTripTitle {
     return NSLocalizedString(@"Not a valid trip",
                              @"Message title for an invalid trip input");
@@ -132,6 +126,11 @@
 + (NSString *)notificationErrorTitle {
     return NSLocalizedString(@"Could not submit notification request",
                              @"Notification error title");
+}
+
++ (NSString *)noNotificationTitle {
+    return NSLocalizedString(@"No notification",
+                             @"Message title for no notification information");
 }
 
 + (NSString *)missingParameterErrorMessage {

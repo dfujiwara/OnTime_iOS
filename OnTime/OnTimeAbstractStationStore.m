@@ -8,10 +8,21 @@
 
 #import "OnTimeAbstractStationStore.h"
 #import "OnTimeConnection.h"
+#import "OnTimeConstants.h"
+#import "OnTimeNotification.h"
 
 @implementation OnTimeAbstractStationStore
 
 @synthesize nearbyStations = nearbyStations_;
+@synthesize locationManager = locationManager_;
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        locationManager_ = [[CLLocationManager alloc] init];
+    }
+    return self;
+}
 
 - (void)issueNearbyStationRequest:(NSString *)urlString
                    withCompletion:(void (^)(NSDictionary *, NSError *))block {
@@ -28,7 +39,7 @@
 
 - (void)issueNotificationRequest:(NSString *)urlString
                         withData:(NSDictionary *)requestData
-                  withCompletion:(void (^)(NSDictionary *, NSError *))block {
+                  withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block {
     // set up the HTTP POST request for the notification request
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
@@ -53,12 +64,16 @@
 }
 
 - (void)getNearbyStations:(CLLocation *)currentLocation
-           withCompletion: (void (^)(NSArray *stations, NSError *err))block {
+           withCompletion: (void (^)(NSError *err))block {
     return;
 }
 
 - (void)requestNotification:(NSDictionary *)requestData
-             withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block {
+             withCompletion:(void (^)(NSError *err))block {
+    return;
+}
+
+- (void)processPendingNotification:(NSDictionary *)notificationData {
     return;
 }
 

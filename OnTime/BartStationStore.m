@@ -7,9 +7,10 @@
 //
 
 #import "BartStationStore.h"
-#import "OnTimeConnection.h"
 #import "BartStation.h"
 #import "OnTimeConstants.h"
+#import "OnTimeNotification.h"
+#import "OnTimeUIStringFactory.h"
 
 const NSInteger limitedStationNumber = 3;
 
@@ -35,8 +36,12 @@ NSString * const longitudeKey = @"long";
     return stationStore;
 }
 
+
+#pragma mark - nearby stations related methods
+
+
 - (void)getNearbyStations:(CLLocation *)currentLocation
-           withCompletion: (void (^)(NSArray *stations, NSError *err))block {
+           withCompletion: (void (^)(NSError *err))block {
 
     // define an outer completion block.
     // this block processes the HTTP response and stores the retrieved nearby
@@ -66,13 +71,15 @@ NSString * const longitudeKey = @"long";
                 }
             } else {
                 NSLog(@"success returned false");
-                err = [NSError errorWithDomain:@"Server error" code:1 userInfo:nil];
+                err = [NSError errorWithDomain:@"Server error"
+                                          code:OnTimeErrorCodeGeneral
+                                      userInfo:nil];
             }
         } else {
             NSLog(@"error was returned for getNearbyStations: %@", err);
         }
         if (block){
-            block(self.nearbyStations, err);
+            block(err);
         }
     };
 
@@ -87,14 +94,100 @@ NSString * const longitudeKey = @"long";
                      withCompletion:processNearbyStations];
 }
 
+
+#pragma mark - notification related methods
+
+
 - (void)requestNotification:(NSDictionary *)requestData
-             withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block {
+             withCompletion:(void (^)(NSError *err))block {
     NSString *urlString = [NSString stringWithFormat:kNotificationUrl,
                            kBartString];
+    void (^registerNotification)(NSDictionary *notificationData, NSError *err) =
+    ^void(NSDictionary *notificationData, NSError *err) {
+        if (err){
+            NSDictionary *userInfo =
+                @{kErrorTitleKey: [OnTimeUIStringFactory notificationErrorTitle],
+                  kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                                object:nil
+                                                              userInfo:userInfo];
+        } else {
+            NSLog(@"response data is %@", notificationData);
+            id successValue = notificationData[kSuccessKey];
+            if (![successValue boolValue]){
+                NSString *errorMessage = nil;
+                int errorCode = [notificationData[kErrorCodeKey] intValue];
+                switch (errorCode) {
+                    case OnTimeErrorMissingParameter:
+                        errorMessage = [OnTimeUIStringFactory missingParameterErrorMessage];
+                        break;
+                    case OnTimeErrorNotificationCreationFailure:
+                        errorMessage = [OnTimeUIStringFactory failedToCreateNotificationErrorMessage];
+                        break;
+                    case OnTimeErrorNoAvailableTime:
+                        errorMessage = [OnTimeUIStringFactory noTimeAvailableErrorMessage];
+                        break;
+                    default:
+                        errorMessage = [OnTimeUIStringFactory genericErrorMessage];
+                        break;
+                }
+
+                NSDictionary *userInfo =
+                    @{kErrorTitleKey: [OnTimeUIStringFactory noNotificationTitle],
+                      kErrorMessageKey: errorMessage};
+                [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                                    object:nil
+                                                                  userInfo:userInfo];
+            } else {
+                // Schedule the first available notification
+                OnTimeNotification *notification =
+                    [[OnTimeNotification alloc] initWithNotificationData:notificationData];
+                [notification scheduleNotification:0];
+            }
+        }
+
+        if (block) {
+            block(err);
+        }
+    };
+
     [self issueNotificationRequest:urlString
                           withData:requestData
-                    withCompletion:block];
+                    withCompletion:registerNotification];
 }
+
+- (void)processPendingNotification:(NSDictionary *)notificationData {
+    if (notificationData) {
+        NSLog(@"processing pending notification");
+        NSMutableDictionary *requestData = [NSMutableDictionary dictionary];
+
+        NSString *startStationId = nil;
+        NSArray *nearbyStations = [[BartStationStore sharedStore] nearbyStations:1];
+        if ([nearbyStations count] > 0) {
+            BartStation *nearbyStation = nearbyStations[0];
+            startStationId = nearbyStation.stationId;
+        } else {
+            startStationId = notificationData[kStartId];
+        }
+        requestData[sourceStationKey] = startStationId;
+        requestData[destinationStationKey] = notificationData[kDestinationId];
+
+        requestData[distanceModeKey] = notificationData[kTravelModeKey];
+
+        CLLocationCoordinate2D coords = self.locationManager.location.coordinate;
+        NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
+        NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
+        requestData[longitudeKey] = longitude;
+        requestData[latitudeKey] = latitude;
+
+        [self requestNotification:requestData
+                   withCompletion:nil];
+    }
+}
+
+
+#pragma mark - station selection related methods 
+
 
 - (void)selectStation:(NSInteger)stationIndex inGroup:(NSInteger)groupIndex {
     if (groupIndex < [self.selectedStationIndices count]){

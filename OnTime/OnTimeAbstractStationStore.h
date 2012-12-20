@@ -12,15 +12,22 @@
 
 @interface OnTimeAbstractStationStore : NSObject <OnTimeManagerProtocol>
 
+@property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *nearbyStations;
 
 // Issues the near by station request at the given url
+// Note that the completion handler expects the station dictionary data as
+// a parameter since the station data is specific to the transit line, and
+// the concrete subclass of the station store needs to handle them
+// appropriately.
 - (void)issueNearbyStationRequest:(NSString *)urlString
-                   withCompletion:(void (^)(NSDictionary *stationsData, NSError *err))block;
+                   withCompletion:(void (^)(NSDictionary *stationsData,
+                                            NSError *err))block;
 
 // Issues the notification request at the given url with the given request data.
 - (void)issueNotificationRequest:(NSString *)urlString
                         withData:(NSDictionary *)requestData
-                  withCompletion:(void (^)(NSDictionary *notificationData, NSError *err))block;
+                  withCompletion:(void (^)(NSDictionary *notificationData,
+                                           NSError *err))block;
 
 @end

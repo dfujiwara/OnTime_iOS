@@ -22,4 +22,10 @@ NSString * const kStationLocationKey = @"location";
 NSString * const kStationUrlTemplate = @"http://ontime.jit.su/%@/locate/?lat=%f&long=%f";
 NSString * const kNotificationUrl = @"http://ontime.jit.su/%@/notify";
 
+NSString * const kPendingNotificationName = @"kPendingNotification";
+NSString * const kErrorNotificationName = @"kErrorNotification";
+
+NSString * const kErrorTitleKey = @"kErrorTitleKey";
+NSString * const kErrorMessageKey = @"kErrorMessageKey";
+
 const CLLocationDistance kUserLocationDistanceThreshold = 200;
