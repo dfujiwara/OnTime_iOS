@@ -10,9 +10,17 @@
 
 @implementation OnTimeUIStringFactory
 
++ (NSString *)bartLabel {
+    return NSLocalizedString(@"Bart", @"Bart label");
+}
+
 + (NSString *)okButtonLabel {
     return NSLocalizedString(@"OK", @"OK button label");
 }
+
+
+#pragma mark - table related strings
+
 
 + (NSString *)fromHeaderString {
     return NSLocalizedString(@"From",
@@ -38,6 +46,10 @@
     }
     return prefix;
 }
+
+
+#pragma mark - notification related strings
+
 
 + (NSString *)notificationMessageTemplate {
     return NSLocalizedString(@"Leave at %@ to catch %@ at %@ arriving at %@; "
@@ -84,9 +96,62 @@
     return modeString;
 }
 
+
+#pragma mark - user input error messages
+
+
 + (NSString *)noNotificationTitle {
     return NSLocalizedString(@"No notification",
-                             @"Error message for no notification information");
+                             @"Message title for no notification information");
+}
+
++ (NSString *)invalidTripTitle {
+    return NSLocalizedString(@"Not a valid trip",
+                             @"Message title for an invalid trip input");
+}
+
++ (NSString *)missingStationErrorMessage {
+    return NSLocalizedString(@"Please select both stations.",
+                             @"Error message for missing station selection");
+}
+
++ (NSString *)identificalStationErrorMessage {
+    return NSLocalizedString(@"Please pick two different stations.",
+                             @"Error message for not selecting different stations");
+}
+
+
+#pragma mark - server error messages
+
+
++ (NSString *)nearbyStationErrorTitle {
+    return NSLocalizedString(@"Could not get nearby stations",
+                             @"Nearby station error title");
+}
+
++ (NSString *)notificationErrorTitle {
+    return NSLocalizedString(@"Could not submit notification request",
+                             @"Notification error title");
+}
+
++ (NSString *)missingParameterErrorMessage {
+    return NSLocalizedString(@"Not all parameters were provided.",
+                             @"Error message for missing parameter");
+}
+
++ (NSString *)failedToCreateNotificationErrorMessage {
+    return NSLocalizedString(@"Failed to create notification.",
+                             @"Error message for failing to create notification");
+}
+
++ (NSString *)noTimeAvailableErrorMessage {
+    return NSLocalizedString(@"No time is available currently.",
+                             @"Error message for no available time for notification");
+}
+
++ (NSString *)genericErrorMessage {
+    return NSLocalizedString(@"An error occurred. Please try again later.",
+                             @"Generic error message");
 }
 
 @end

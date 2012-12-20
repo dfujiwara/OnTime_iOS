@@ -12,36 +12,7 @@
 #import "OnTimeNotification.h"
 #import "OnTimeStationMapAnnotation.h"
 #import "OnTimeUIStringFactory.h"
-
-// Navigation bar related constants
-static NSString * const OnTimeTitle = @"Bart";
-
-// Table view constants
-
-// Error messages
-static NSString * const invalidTripTitle = @"Not a valid trip";
-static NSString * const missingStationMessage =
-    @"Please select source and destination.";
-static NSString * const identicalStationMessage =
-    @"Please pick two different stations.";
-
-static NSString * const nearbyStationErrorTitle = @"Could not get nearby stations.";
-static NSString * const notificationErrorTitle = @"Could not submit notification request.";
-static NSString * const errorMessage = @"Please try again later.";
-
-static NSString * const missingParameterMessage = @"Not all parameters were provided.";
-static NSString * const failedToCreateNoficationMessage = @"Failed to create notification.";
-static NSString * const noTimeAvailableMessage = @"No time is available.";
-static NSString * const defaultNotificationErrorMessage= @"An error occurred. Please try again.";
-
-// Notification data dictionary keys
-static NSString * const successKey = @"success";
-static NSString * const errorCodeKey = @"errorCode";
-
-// Distance threshold for the updated user location relative to
-// the previously recorded user location. If this threshold is exceeded, the
-// updated user location is processed. This is expressed in meters.
-const static CLLocationDistance userLocationDistanceThreshold = 200;
+#import "OnTimeConstants.h"
 
 @interface BartViewController () {
     NSMutableSet *tableRowsToUpdate_;
@@ -84,7 +55,7 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         tableRowsToUpdate_ = [NSMutableSet set];
 
         // Set navigation bar title.
-        self.navigationItem.title = OnTimeTitle;
+        self.navigationItem.title = [OnTimeUIStringFactory bartLabel];
 
         sourceStationAnnotation_ = [[OnTimeStationMapAnnotation alloc] init];
         targetStationAnnotation_ = [[OnTimeStationMapAnnotation alloc] init];
@@ -178,9 +149,9 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
     if (lastRecordedLocation_) {
         CLLocationDistance distance =
             [lastRecordedLocation_ distanceFromLocation:userLocation.location];
-        if (distance <= userLocationDistanceThreshold) {
+        if (distance <= kUserLocationDistanceThreshold) {
             NSLog(@"Not processing the user location because the distance is %f <= %f",
-                  distance, userLocationDistanceThreshold);
+                  distance, kUserLocationDistanceThreshold);
             return;
         }
     }
@@ -200,8 +171,8 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
             // display the error message if retrieve nearby stations was
             // not successful
             UIAlertView *errorAlert = [[UIAlertView alloc]
-                                       initWithTitle:nearbyStationErrorTitle
-                                       message:errorMessage
+                                       initWithTitle:[OnTimeUIStringFactory nearbyStationErrorTitle]
+                                       message:[OnTimeUIStringFactory genericErrorMessage]
                                        delegate:nil
                                        cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
                                        otherButtonTitles:nil];
@@ -352,8 +323,8 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
     // error checking
     if (!sourceStation || !destinationStation){
         UIAlertView *av = [[UIAlertView alloc]
-                           initWithTitle:invalidTripTitle
-                           message:missingStationMessage
+                           initWithTitle:[OnTimeUIStringFactory invalidTripTitle]
+                           message:[OnTimeUIStringFactory missingStationErrorMessage]
                            delegate:nil
                            cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
                            otherButtonTitles:nil];
@@ -361,8 +332,8 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
         return;
     } else if (sourceStation == destinationStation) {
         UIAlertView *av = [[UIAlertView alloc]
-                           initWithTitle:invalidTripTitle
-                           message:identicalStationMessage
+                           initWithTitle:[OnTimeUIStringFactory invalidTripTitle]
+                           message:[OnTimeUIStringFactory identificalStationErrorMessage]
                            delegate:nil
                            cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
                            otherButtonTitles:nil];
@@ -421,8 +392,8 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
             // display the error message if retrieve nearby stations was
             // not successful
             UIAlertView *errorAlert = [[UIAlertView alloc]
-                                       initWithTitle:notificationErrorTitle
-                                       message:errorMessage
+                                       initWithTitle:[OnTimeUIStringFactory notificationErrorTitle]
+                                       message:[OnTimeUIStringFactory genericErrorMessage]
                                        delegate:nil
                                        cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
                                        otherButtonTitles:nil];
@@ -439,26 +410,26 @@ const static CLLocationDistance userLocationDistanceThreshold = 200;
 - (void)handleNotificationData:(NSDictionary *)notificationData {
     NSLog(@"response data is %@", notificationData);
 
-    id successValue = notificationData[successKey];
+    id successValue = notificationData[kSuccessKey];
     if (![successValue boolValue]){
-        int errorCode = [notificationData[errorCodeKey] intValue];
+        int errorCode = [notificationData[kErrorCodeKey] intValue];
         NSString *noNotificationErrorMessage = nil;
         switch (errorCode){
             case 1:
-                noNotificationErrorMessage = missingStationMessage;
+                noNotificationErrorMessage = [OnTimeUIStringFactory missingParameterErrorMessage];
                 break;
             case 2:
-                noNotificationErrorMessage = failedToCreateNoficationMessage;
+                noNotificationErrorMessage = [OnTimeUIStringFactory failedToCreateNotificationErrorMessage];
                 break;
             case 3:
-                noNotificationErrorMessage = noTimeAvailableMessage;
+                noNotificationErrorMessage = [OnTimeUIStringFactory noTimeAvailableErrorMessage];
                 break;
             default:
-                noNotificationErrorMessage = defaultNotificationErrorMessage;
+                noNotificationErrorMessage = [OnTimeUIStringFactory genericErrorMessage];
                 break;
         }
         UIAlertView *errorAlert = [[UIAlertView alloc]
-                                   initWithTitle:[OnTimeUIStringFactory notificationTitle]
+                                   initWithTitle:[OnTimeUIStringFactory noNotificationTitle]
                                    message:noNotificationErrorMessage
                                    delegate:nil
                                    cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]

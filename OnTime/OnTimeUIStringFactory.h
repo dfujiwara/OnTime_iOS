@@ -11,6 +11,9 @@
 
 @interface OnTimeUIStringFactory : NSObject
 
+// Navbar related strings
++ (NSString *)bartLabel;
+
 // Generic button labels.
 + (NSString *)okButtonLabel;
 
@@ -34,8 +37,20 @@
 // The section currently represents source or destination stations.
 + (NSString *)prefixStationPrefix:(NSUInteger)section;
 
+// User input error messages
++ (NSString *)invalidTripTitle;
++ (NSString *)missingStationErrorMessage;
++ (NSString *)identificalStationErrorMessage;
 
-// Error messages
+// server error messages
++ (NSString *)nearbyStationErrorTitle;
++ (NSString *)notificationErrorTitle;
+
 + (NSString *)noNotificationTitle;
++ (NSString *)missingParameterErrorMessage;
++ (NSString *)failedToCreateNotificationErrorMessage;
++ (NSString *)noTimeAvailableErrorMessage;
+
++ (NSString *)genericErrorMessage;
 
 @end
