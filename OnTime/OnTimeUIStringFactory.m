@@ -14,6 +14,10 @@
     return NSLocalizedString(@"Bart", @"Bart label");
 }
 
++ (NSString *)muniLabel {
+    return NSLocalizedString(@"Muni", @"Bart label");
+}
+
 + (NSString *)okButtonLabel {
     return NSLocalizedString(@"OK", @"OK button label");
 }
@@ -32,17 +36,26 @@
                              @"'To' label");
 }
 
++ (NSString *)stationHeaderString {
+    return NSLocalizedString(@"Station",
+                             @"'Station' label");
+}
+
 + (NSString *)prefixStationPrefix:(NSUInteger)section {
-    NSString *prefix;
-    NSString *prefixDelimiter = @": ";
+    static NSString * prefixDelimiter = @": ";
+    NSString *prefix = nil;
     switch (section) {
         case 1:
-            prefix =
-                [[OnTimeUIStringFactory toHeaderString] stringByAppendingString:prefixDelimiter];
+            prefix = [[OnTimeUIStringFactory toHeaderString]
+                      stringByAppendingString:prefixDelimiter];
+            break;
+        case 2:
+            prefix = [[OnTimeUIStringFactory stationHeaderString]
+                      stringByAppendingString:prefixDelimiter];
             break;
         default:
-            prefix =
-                [[OnTimeUIStringFactory fromHeaderString] stringByAppendingString:prefixDelimiter];
+            prefix = [[OnTimeUIStringFactory fromHeaderString]
+                      stringByAppendingString:prefixDelimiter];
     }
     return prefix;
 }

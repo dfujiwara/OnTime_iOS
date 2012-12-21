@@ -1,25 +1,23 @@
 //
-//  BartViewController.m
+//  MuniViewController.m
 //  OnTime
 //
-//  Created by Daisuke Fujiwara on 9/23/12.
+//  Created by Daisuke Fujiwara on 12/20/12.
 //  Copyright (c) 2012 HDProject. All rights reserved.
 //
 
-#import "BartViewController.h"
-#import "StationChoiceViewController.h"
-#import "BartStationStore.h"
-#import "OnTimeNotification.h"
+#import "MuniViewController.h"
 #import "OnTimeStationMapAnnotation.h"
 #import "OnTimeUIStringFactory.h"
+#import "MuniStationStore.h"
+#import "StationChoiceViewController.h"
 #import "OnTimeConstants.h"
 
-@interface BartViewController () {
-    NSMutableSet *tableRowsToUpdate_;
+@interface MuniViewController () {
     OnTimeStationMapAnnotation *sourceStationAnnotation_;
-    OnTimeStationMapAnnotation *targetStationAnnotation_;
     CLLocation *lastRecordedLocation_;
     UIView *distanceLabelBackgroundView_;
+    BOOL updateTableRow_;
 }
 
 // Configures the UI given the current state of the view controlloer.
@@ -33,26 +31,24 @@
 
 @end
 
-@implementation BartViewController
+@implementation MuniViewController
 
+@synthesize userMapView = userMapView_;
+@synthesize tableView = tableView_;
+@synthesize distanceLabel = distanceLabel_;
+@synthesize requestNotificationButton = requestNotificationButton_;
 
 # pragma mark - inits
 
 
-// designated initializer
-- (id)initWithNibName:(NSString *)nibNameOrNil
-               bundle:(NSBundle *)nibBundleOrNil {
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Initialize the set of rows to update when the view appears.
-        // This is used for cases like when users has made a source station.
-        tableRowsToUpdate_ = [NSMutableSet set];
-
         // Set navigation bar title.
-        self.navigationItem.title = [OnTimeUIStringFactory bartLabel];
+        self.navigationItem.title = [OnTimeUIStringFactory muniLabel];
 
         sourceStationAnnotation_ = [[OnTimeStationMapAnnotation alloc] init];
-        targetStationAnnotation_ = [[OnTimeStationMapAnnotation alloc] init];
+        updateTableRow_ = NO;
     }
     return self;
 }
@@ -62,14 +58,16 @@
 
 
 - (void)viewDidLoad {
-    [userMapView setShowsUserLocation:YES];
+    [super viewDidLoad];
 
-    distanceLabelBackgroundView_ = [[UIView alloc] initWithFrame:distanceLabel.frame];
+    [userMapView_ setShowsUserLocation:YES];
+
+    distanceLabelBackgroundView_ = [[UIView alloc] initWithFrame:distanceLabel_.frame];
     distanceLabelBackgroundView_.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin |
     UIViewAutoresizingFlexibleTopMargin;
     distanceLabelBackgroundView_.backgroundColor = [UIColor colorWithWhite:0.58
                                                                      alpha:.75];
-    [userMapView addSubview:distanceLabelBackgroundView_];
+    [userMapView_ addSubview:distanceLabelBackgroundView_];
 
     // UI needs to be configured approriately when the view is loaded (e.g.
     // enable or disable based on the previous state).
@@ -79,54 +77,58 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
 
-    // Update the rows that needs to be updated.
-    if ([tableRowsToUpdate_ count] > 0) {
+    // Update the table row if needed.
+    if (updateTableRow_) {
+
+        // Animate the map region change since when the table rows update is
+        // required, then it also means that the map annotation location
+        // has changed.
+        MKMapPoint currentPoint = MKMapPointForCoordinate(userMapView_.userLocation.coordinate);
+        MKMapPoint stationPoint = MKMapPointForCoordinate(sourceStationAnnotation_.coordinate);
+
+        // Generate map rect from those two map points.
+        MKMapRect mapRect = MKMapRectMake (fmin(currentPoint.x, stationPoint.x),
+                                           fmin(currentPoint.y, stationPoint.y),
+                                           fabs(currentPoint.x - stationPoint.x),
+                                           fabs(currentPoint.y - stationPoint.y));
+
+        // Determine the mid point in the map rect.
+        MKMapPoint middlePoint;
+        middlePoint.x = MKMapRectGetMidX(mapRect);
+        middlePoint.y = MKMapRectGetMidY(mapRect);
+        CLLocationCoordinate2D centerCoordinate = MKCoordinateForMapPoint(middlePoint);
+
+
+        // Calculate the distance between those two points.
+        CLLocation *stationLocation =
+        [[CLLocation alloc] initWithCoordinate:sourceStationAnnotation_.coordinate
+                                      altitude:0
+                            horizontalAccuracy:0
+                              verticalAccuracy:-1
+                                     timestamp:[NSDate date]];
+        CLLocationDistance distance = [userMapView_.userLocation.location
+                                       distanceFromLocation:stationLocation];
+        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerCoordinate,
+                                                                       distance,
+                                                                       distance);
+        [userMapView_ setRegion:region animated:YES];
+
+        // Also update the distance label to the source station.
+        [self updateDistanceToStationFrom:userMapView_.userLocation.location
+                                       to:stationLocation];
+
+
+        // Animate the row update
         NSIndexPath *sourceStationIndexPath = [NSIndexPath indexPathForRow:0
-                                                                inSection:0];
-        if ([tableRowsToUpdate_ containsObject:sourceStationIndexPath]) {
-            // Animate the map region change since when the table rows update is
-            // required, then it also means that the map annotation location
-            // has changed.
-            MKMapPoint currentPoint = MKMapPointForCoordinate(userMapView.userLocation.coordinate);
-            MKMapPoint stationPoint = MKMapPointForCoordinate(sourceStationAnnotation_.coordinate);
-
-            // Generate map rect from those two map points.
-            MKMapRect mapRect = MKMapRectMake (fmin(currentPoint.x, stationPoint.x),
-                                          fmin(currentPoint.y, stationPoint.y),
-                                          fabs(currentPoint.x - stationPoint.x),
-                                          fabs(currentPoint.y - stationPoint.y));
-
-            // Determine the mid point in the map rect.
-            MKMapPoint middlePoint;
-            middlePoint.x = MKMapRectGetMidX(mapRect);
-            middlePoint.y = MKMapRectGetMidY(mapRect);
-            CLLocationCoordinate2D centerCoordinate = MKCoordinateForMapPoint(middlePoint);
-
-
-            // Calculate the distance between those two points.
-            CLLocation *stationLocation =
-                [[CLLocation alloc] initWithCoordinate:sourceStationAnnotation_.coordinate
-                                              altitude:0
-                                    horizontalAccuracy:0
-                                      verticalAccuracy:-1
-                                             timestamp:[NSDate date]];
-            CLLocationDistance distance = [userMapView.userLocation.location
-                                           distanceFromLocation:stationLocation];
-            MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerCoordinate,
-                                                                           distance,
-                                                                           distance);
-            [userMapView setRegion:region animated:YES];
-
-            // Also update the distance label to the source station.
-            [self updateDistanceToStationFrom:userMapView.userLocation.location
-                                           to:stationLocation];
-        }
-
-        // Animate the row updates
-        [tableView reloadRowsAtIndexPaths:[tableRowsToUpdate_ allObjects]
+                                                                 inSection:0];
+        [tableView_ reloadRowsAtIndexPaths:@[sourceStationIndexPath]
                          withRowAnimation:UITableViewRowAnimationRight];
-        [tableRowsToUpdate_ removeAllObjects];
     }
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
 
 
@@ -146,46 +148,45 @@
         }
     }
 
-    [activityIndicator startAnimating];
+    //[activityIndicator startAnimating];
     lastRecordedLocation_ = [userLocation location];
 
     CLLocationCoordinate2D coords = lastRecordedLocation_.coordinate;
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coords, 500, 500);
-    [userMapView setRegion:region animated:YES];
+    [userMapView_ setRegion:region animated:YES];
 
     // callback method
     void (^displayNearbyStations)(NSError *err) =
     ^void(NSError *err){
-        [activityIndicator stopAnimating];
+        //[activityIndicator stopAnimating];
         if (err) {
             NSDictionary *userInfo =
-                @{kErrorTitleKey: [OnTimeUIStringFactory nearbyStationErrorTitle],
-                  kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
+            @{kErrorTitleKey: [OnTimeUIStringFactory nearbyStationErrorTitle],
+              kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
             [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
                                                                 object:nil
                                                               userInfo:userInfo];
         } else {
             // Also update the distance label to the source station if the
             // selection has been made.
-            Station *sourceStation = [[BartStationStore sharedStore]
-                                      getSelectedStation:0];
+            Station *sourceStation = [MuniStationStore sharedStore].selectedStation;
             if (sourceStation) {
                 CLLocation *stationLocation =
-                    [[CLLocation alloc] initWithCoordinate:sourceStation.location
-                                                  altitude:0
-                                        horizontalAccuracy:0
-                                          verticalAccuracy:-1
-                                                 timestamp:[NSDate date]];
-                [self updateDistanceToStationFrom:userMapView.userLocation.location
+                [[CLLocation alloc] initWithCoordinate:sourceStation.location
+                                              altitude:0
+                                    horizontalAccuracy:0
+                                      verticalAccuracy:-1
+                                             timestamp:[NSDate date]];
+                [self updateDistanceToStationFrom:userMapView_.userLocation.location
                                                to:stationLocation];
             }
         }
         // It's possible that previously station selections are no longer valid
         // with the new set of nearby stations, so reload the data to reflect
         // the current state of things.
-        [tableView reloadData];
+        [tableView_ reloadData];
     };
-    [[BartStationStore sharedStore] getNearbyStations:lastRecordedLocation_
+    [[MuniStationStore sharedStore] getNearbyStations:lastRecordedLocation_
                                        withCompletion:displayNearbyStations];
 }
 
@@ -201,22 +202,22 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tv {
     // currently there are two sections: source and destination
-    return 2;
+    return 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tv
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell"];
+    UITableViewCell *cell = [tableView_ dequeueReusableCellWithIdentifier:@"UITableViewCell"];
     if (!cell){
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                       reuseIdentifier:@"UITableViewCell"];
         [cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
     }
 
-    NSString *cellText = [OnTimeUIStringFactory prefixStationPrefix:indexPath.section];
+    NSString *cellText = [OnTimeUIStringFactory prefixStationPrefix:2];
 
     // if station is selected show the station name as the cell text
-    Station *station = [[BartStationStore sharedStore] getSelectedStation:indexPath.section];
+    Station *station = [MuniStationStore sharedStore].selectedStation;
     if (station){
         cellText = [cellText stringByAppendingString:station.stationName];
     }
@@ -229,40 +230,21 @@
 
 
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSInteger groupIndex = indexPath.section;
-    
-    NSArray *stations = nil;
-    NSString *titleString = nil;
-    Station *selectedStation = nil;
-    if (groupIndex == 0) {
-        stations = [[BartStationStore sharedStore] nearbyStations:limitedStationNumber];
-        titleString = [OnTimeUIStringFactory fromHeaderString];
-        selectedStation = [[BartStationStore sharedStore] getSelectedStation:0];
-    } else {
-        stations = [[BartStationStore sharedStore] nearbyStations];
-        titleString = [OnTimeUIStringFactory toHeaderString];
-        selectedStation = [[BartStationStore sharedStore] getSelectedStation:1];
-    }
-    
+    NSArray *stations = [[MuniStationStore sharedStore] nearbyStations];
+    NSString *titleString = [OnTimeUIStringFactory stationHeaderString];
+    Station *selectedStation = [MuniStationStore sharedStore].selectedStation;
+
     // block code to execute when the selection is made
     void (^stationSelectionMade)() = ^void(NSInteger stationIndex) {
-        [[BartStationStore sharedStore] selectStation:stationIndex
-                                              inGroup:groupIndex];
-        // Record that the table row designated by the given index path needs to
-        // be updated.
-        [tableRowsToUpdate_ addObject:indexPath];
+        [[MuniStationStore sharedStore] selectStation:stationIndex];
+        // Record that the table row needs to be updated.
+        updateTableRow_ = YES;
 
         // Create a map annotation that points to the selected station
         // destination.
-        Station *selectedStation =
-            [[BartStationStore sharedStore] getSelectedStation:groupIndex];
+        Station *selectedStation = [MuniStationStore sharedStore].selectedStation;
 
-        OnTimeStationMapAnnotation *stationAnnotation = nil;
-        if (groupIndex == 0) {
-            stationAnnotation =  sourceStationAnnotation_;
-        } else {
-            stationAnnotation = targetStationAnnotation_;
-        }
+        OnTimeStationMapAnnotation *stationAnnotation = sourceStationAnnotation_;
 
         // Simply update the annotation coordinate which will get relfected
         // in the map view.
@@ -274,11 +256,11 @@
         // deselecting the annotation closes it. This is done so that
         // the call out view is not going to be consistently shown even when we
         // change the annotation title dynamically.
-        if ([userMapView.annotations containsObject:stationAnnotation]) {
-            [userMapView deselectAnnotation:stationAnnotation
+        if ([userMapView_.annotations containsObject:stationAnnotation]) {
+            [userMapView_ deselectAnnotation:stationAnnotation
                                    animated:YES];
         } else {
-            [userMapView addAnnotation:stationAnnotation];
+            [userMapView_ addAnnotation:stationAnnotation];
         }
 
         // Since the station selection has been made, the UI needs to be
@@ -293,9 +275,8 @@
     [self.navigationController pushViewController:scvc animated:YES];
 
     // Deselect the row to avoid having the row highlighted
-    [tableView deselectRowAtIndexPath:indexPath animated:NO];
+    [tableView_ deselectRowAtIndexPath:indexPath animated:NO];
 }
-
 
 #pragma mark - action methods
 
@@ -305,14 +286,12 @@
 
     // Method to get to the station is shared constants between the client
     // and the server.
-    requestData[kDistanceModeKey] = @(methodToGetToStation.selectedSegmentIndex);
-    
-    Station *sourceStation = [[BartStationStore sharedStore]
-                              getSelectedStation:0];
-    Station *destinationStation = [[BartStationStore sharedStore]
-                                   getSelectedStation:1];
-    if (!sourceStation || !destinationStation){
-        // Both stations need to be selected.
+    //requestData[kDistanceModeKey] = @(methodToGetToStation.selectedSegmentIndex);
+
+    Station *sourceStation = [MuniStationStore sharedStore].selectedStation;
+
+    // error checking
+    if (!sourceStation){
         NSDictionary *userInfo =
             @{kErrorTitleKey: [OnTimeUIStringFactory invalidTripTitle],
               kErrorMessageKey: [OnTimeUIStringFactory missingStationErrorMessage]};
@@ -320,21 +299,10 @@
                                                             object:nil
                                                           userInfo:userInfo];
         return;
-    } else if (sourceStation.stationId == destinationStation.stationId) {
-        // Both stations need to be different.
-        NSDictionary *userInfo =
-            @{kErrorTitleKey: [OnTimeUIStringFactory invalidTripTitle],
-              kErrorMessageKey: [OnTimeUIStringFactory identificalStationErrorMessage]};
-        [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
-                                                            object:nil
-                                                          userInfo:userInfo];
-        return;
     }
-    
     requestData[kSourceStationKey] = sourceStation.stationId;
-    requestData[kDestinationStationKey] = destinationStation.stationId;
-    
-    CLLocationCoordinate2D coords = userMapView.userLocation.coordinate;
+
+    CLLocationCoordinate2D coords = userMapView_.userLocation.coordinate;
     NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
     NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
     requestData[kLongitudeKey] = longitude;
@@ -342,22 +310,21 @@
 
     void (^completionBlock)(NSError *err) = ^(NSError *err) {
         // Reset current selection since the notification was successful
-        [[BartStationStore sharedStore] resetCurrentSelectedStations];
-        [tableView reloadData];
+        [MuniStationStore sharedStore].selectedStation = nil;
+        [tableView_ reloadData];
 
         // Reset the segment control.
-        methodToGetToStation.selectedSegmentIndex = 0;
+        //methodToGetToStation.selectedSegmentIndex = 0;
 
         // Also remove the map annotations since the station selections are now
         // resetted.
-        [userMapView removeAnnotations:@[sourceStationAnnotation_,
-         targetStationAnnotation_]];
+        [userMapView_ removeAnnotations:@[sourceStationAnnotation_]];
 
         // Since the station selection has been reset, the UI needs to be
         // configured to be disabled.
         [self configureUI];
     };
-    [[BartStationStore sharedStore] requestNotification:requestData
+    [[MuniStationStore sharedStore] requestNotification:requestData
                                          withCompletion:completionBlock];
 }
 
@@ -366,16 +333,13 @@
 
 
 - (void)configureUI {
-    Station *sourceStation = [[BartStationStore sharedStore]
-                              getSelectedStation:0];
-    Station *destinationStation = [[BartStationStore sharedStore]
-                                   getSelectedStation:1];
-    if (!sourceStation || !destinationStation){
-        requestNotificationButton.enabled = NO;
-        distanceLabel.hidden = YES;
+    Station *sourceStation = [MuniStationStore sharedStore].selectedStation;
+    if (!sourceStation){
+        requestNotificationButton_.enabled = NO;
+        distanceLabel_.hidden = YES;
         distanceLabelBackgroundView_.hidden = YES;
     } else {
-        requestNotificationButton.enabled = YES;
+        requestNotificationButton_.enabled = YES;
     }
 }
 
@@ -387,9 +351,9 @@
     CGFloat distanceInMiles = distance * conversionRateFromMetersToMiles;
     NSLog(@"distance is %f", distanceInMiles);
     NSString *distanceStringTemplate = @"%.1f mi";
-    distanceLabel.text = [NSString stringWithFormat:distanceStringTemplate,
+    distanceLabel_.text = [NSString stringWithFormat:distanceStringTemplate,
                           distanceInMiles];
-    distanceLabel.hidden = NO;
+    distanceLabel_.hidden = NO;
     distanceLabelBackgroundView_.hidden = NO;
 }
 

@@ -8,6 +8,7 @@
 
 #import "OnTimeTopViewController.h"
 #import "BartViewController.h"
+#import "MuniViewController.h"
 
 @implementation OnTimeTopViewController
 
@@ -27,7 +28,11 @@
         [self.navigationController pushViewController:bartViewController
                                              animated:YES];
     } else if (sender == muniButton_) {
-        NSLog(@"muni button pressed");
+        MuniViewController *muniViewController =
+            [[MuniViewController alloc] initWithNibName:nil
+                                                 bundle:nil];
+        [self.navigationController pushViewController:muniViewController
+                                             animated:YES];
     } else {
         NSLog(@"Not registered sender button");
     }

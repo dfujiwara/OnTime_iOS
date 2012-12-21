@@ -37,7 +37,7 @@
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 			</object>
 			<object class="IBUIView" id="774585933">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">274</int>
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="IBUITableView" id="436646031">
@@ -51,7 +51,7 @@
 									<object class="IBMKMapView" id="244779830">
 										<reference key="NSNextResponder" ref="694722137"/>
 										<int key="NSvFlags">306</int>
-										<string key="NSFrameSize">{320, 143}</string>
+										<string key="NSFrameSize">{320, 173}</string>
 										<reference key="NSSuperview" ref="694722137"/>
 										<reference key="NSNextKeyView" ref="250816509"/>
 										<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -62,7 +62,7 @@
 									<object class="IBUILabel" id="250816509">
 										<reference key="NSNextResponder" ref="694722137"/>
 										<int key="NSvFlags">265</int>
-										<string key="NSFrame">{{273, 116}, {42, 21}}</string>
+										<string key="NSFrame">{{273, 146}, {42, 21}}</string>
 										<reference key="NSSuperview" ref="694722137"/>
 										<reference key="NSNextKeyView" ref="1022773409"/>
 										<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -88,7 +88,7 @@
 										<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 									</object>
 								</array>
-								<string key="NSFrameSize">{320, 143}</string>
+								<string key="NSFrameSize">{320, 173}</string>
 								<reference key="NSSuperview" ref="436646031"/>
 								<reference key="NSNextKeyView" ref="244779830"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -217,7 +217,7 @@
 										<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 									</object>
 								</array>
-								<string key="NSFrame">{{0, 273}, {320, 145}}</string>
+								<string key="NSFrame">{{0, 361}, {320, 145}}</string>
 								<reference key="NSSuperview" ref="436646031"/>
 								<reference key="NSNextKeyView" ref="799768051"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -228,7 +228,7 @@
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 							</object>
 						</array>
-						<string key="NSFrameSize">{320, 416}</string>
+						<string key="NSFrameSize">{320, 504}</string>
 						<reference key="NSSuperview" ref="774585933"/>
 						<reference key="NSNextKeyView" ref="694722137"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -253,6 +253,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{142, 211}, {37, 37}}</string>
 						<reference key="NSSuperview" ref="774585933"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -260,13 +261,31 @@
 						<int key="IBUIStyle">0</int>
 					</object>
 				</array>
-				<string key="NSFrame">{{0, 64}, {320, 416}}</string>
+				<string key="NSFrame">{{0, 64}, {320, 504}}</string>
+				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="436646031"/>
 				<reference key="IBUIBackgroundColor" ref="48991322"/>
 				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 				<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics"/>
 				<object class="IBUISimulatedNavigationBarMetrics" key="IBUISimulatedTopBarMetrics">
 					<bool key="IBUIPrompted">NO</bool>
+				</object>
+				<object class="IBUIScreenMetrics" key="IBUISimulatedDestinationMetrics">
+					<string key="IBUISimulatedSizeMetricsClass">IBUIScreenMetrics</string>
+					<object class="NSMutableDictionary" key="IBUINormalizedOrientationToSizeMap">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<array key="dict.sortedKeys">
+							<integer value="1"/>
+							<integer value="3"/>
+						</array>
+						<array key="dict.values">
+							<string>{320, 568}</string>
+							<string>{568, 320}</string>
+						</array>
+					</object>
+					<string key="IBUITargetRuntime">IBCocoaTouchFramework</string>
+					<string key="IBUIDisplayName">Retina 4 Full Screen</string>
+					<int key="IBUIType">2</int>
 				</object>
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 			</object>

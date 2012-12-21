@@ -19,6 +19,12 @@ NSString * const kStationNameKey = @"name";
 NSString * const kStationAddressKey = @"address";
 NSString * const kStationLocationKey = @"location";
 
+NSString * const kStationStopIdKey = @"@stopId";
+NSString * const kStationTagKey = @"@tag";
+NSString * const kStationTitleKey = @"@title";
+NSString * const kStationDirectionKey = @"direction_name";
+NSString * const kStationRouteKey = @"route";
+
 NSString * const kStationUrlTemplate = @"http://ontime.jit.su/%@/locate/?lat=%f&long=%f";
 NSString * const kNotificationUrl = @"http://ontime.jit.su/%@/notify";
 
@@ -29,3 +35,9 @@ NSString * const kErrorTitleKey = @"kErrorTitleKey";
 NSString * const kErrorMessageKey = @"kErrorMessageKey";
 
 const CLLocationDistance kUserLocationDistanceThreshold = 200;
+
+NSString * const kDistanceModeKey = @"mode";
+NSString * const kSourceStationKey = @"start";
+NSString * const kDestinationStationKey = @"end";
+NSString * const kLatitudeKey = @"lat";
+NSString * const kLongitudeKey = @"long";

@@ -22,6 +22,13 @@ extern NSString * const kStationNameKey;
 extern NSString * const kStationAddressKey;
 extern NSString * const kStationLocationKey;
 
+// Muni speicific JSON keys
+extern NSString * const kStationStopIdKey;
+extern NSString * const kStationTagKey;
+extern NSString * const kStationTitleKey;
+extern NSString * const kStationDirectionKey;
+extern NSString * const kStationRouteKey;
+
 // URL templates to get the nearby stations and request for notifications.
 extern NSString * const kStationUrlTemplate;
 extern NSString * const kNotificationUrl;
@@ -48,3 +55,10 @@ typedef enum {
     OnTimeErrorNotificationCreationFailure = 2,
     OnTimeErrorNoAvailableTime = 3
 } OnTimeErrorCode;
+
+// keys for notification request
+extern NSString * const kDistanceModeKey;
+extern NSString * const kSourceStationKey;
+extern NSString * const kDestinationStationKey;
+extern NSString * const kLatitudeKey;
+extern NSString * const kLongitudeKey;

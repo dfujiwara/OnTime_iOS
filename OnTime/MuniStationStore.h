@@ -13,4 +13,13 @@
 
 @interface MuniStationStore : OnTimeAbstractStationStore
 
+@property (nonatomic, strong) MuniStation *selectedStation;
+
+// Retrieves the single instance of the object that implements this
+// protocol
++ (MuniStationStore *)sharedStore;
+
+// Makes the station selection.
+- (void)selectStation:(NSInteger)stationIndex;
+
 @end

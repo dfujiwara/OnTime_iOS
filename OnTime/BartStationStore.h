@@ -12,15 +12,10 @@
 #import "OnTimeAbstractStationStore.h"
 
 extern const NSInteger limitedStationNumber;
-extern NSString * const distanceModeKey;
-extern NSString * const sourceStationKey;
-extern NSString * const destinationStationKey;
-extern NSString * const latitudeKey;
-extern NSString * const longitudeKey;
 
 @interface BartStationStore : OnTimeAbstractStationStore
 
-@property (nonatomic, strong) NSMutableArray *selectedStationIndices;
+@property (nonatomic, strong) NSMutableArray *selectedStations;
 
 // Retrieves the single instance of the object that implements this
 // protocol
@@ -32,7 +27,7 @@ extern NSString * const longitudeKey;
 // Gets the selected station of the given group.
 - (Station *)getSelectedStation:(NSInteger)groupIndex;
 
-// Resets currently selected stations to be unselected
+// Resets currently selected stations.
 - (void)resetCurrentSelectedStations;
 
 @end

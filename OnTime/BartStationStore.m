@@ -14,12 +14,16 @@
 
 const NSInteger limitedStationNumber = 3;
 
-// keys for notification request
-NSString * const distanceModeKey = @"mode";
-NSString * const sourceStationKey = @"start";
-NSString * const destinationStationKey = @"end";
-NSString * const latitudeKey = @"lat";
-NSString * const longitudeKey = @"long"; 
+@interface BartStationStore ()
+
+// Validates the previously selected source station based on the newly
+// registered nearby stations.
+// This is required since the previously selected station
+// is no longer a nearby station if the location has changed drastically from
+// the time of selection.
+- (void)validatePreviouslySelectedSourceStation;
+
+@end
 
 @implementation BartStationStore
 
@@ -29,9 +33,9 @@ NSString * const longitudeKey = @"long";
         // set up the singleton instance
         stationStore = [[BartStationStore alloc] init];
         stationStore.nearbyStations = [NSMutableArray array];
-        stationStore.selectedStationIndices = [NSMutableArray
-                                               arrayWithObjects:[NSNumber numberWithInt:-1],
-                                               [NSNumber numberWithInt:-1], nil];
+        stationStore.selectedStations = [NSMutableArray
+                                         arrayWithObjects:[NSNull null],
+                                         [NSNull null], nil];
     }
     return stationStore;
 }
@@ -43,19 +47,19 @@ NSString * const longitudeKey = @"long";
 - (void)getNearbyStations:(CLLocation *)currentLocation
            withCompletion: (void (^)(NSError *err))block {
 
-    // define an outer completion block.
-    // this block processes the HTTP response and stores the retrieved nearby
+    // Define an outer completion block.
+    // This block processes the HTTP response and stores the retrieved nearby
     // stations; it also calls the input parameter block to perform any additional
     // task.
     void (^processNearbyStations)(NSDictionary *stationsData, NSError *err) =
-    ^void(NSDictionary *stationData, NSError *err){
+    ^void(NSDictionary *stationData, NSError *err) {
         // First clear out the nearby stations.
         [self.nearbyStations removeAllObjects];
 
         NSValue *isSuccessful = stationData[kSuccessKey];
         if (!err){
-            if (isSuccessful){
-                // process stations                
+            if (isSuccessful) {
+                // Populate the stations from the station data.
                 for (NSDictionary *stationDict in stationData[kStationDictKey]) {
                     BartStation *station = [[BartStation alloc] init];
                     station.stationId = stationDict[kStationIdKey];
@@ -66,19 +70,26 @@ NSString * const longitudeKey = @"long";
                          station.location = CLLocationCoordinate2DMake([locationCoords[1] floatValue],
                                                                        [locationCoords[0] floatValue]);
                     }
-
                     [self.nearbyStations addObject:station];
                 }
+                [self validatePreviouslySelectedSourceStation];
             } else {
                 NSLog(@"success returned false");
                 err = [NSError errorWithDomain:@"Server error"
                                           code:OnTimeErrorCodeGeneral
                                       userInfo:nil];
+                // Because there are no possible selections, simply clear out
+                // the already selected stations.
+                [self resetCurrentSelectedStations];
             }
         } else {
             NSLog(@"error was returned for getNearbyStations: %@", err);
+            // Because there are no possible selections, simply clear out the
+            // already selected stations.
+            [self resetCurrentSelectedStations];
         }
-        if (block){
+        
+        if (block) {
             block(err);
         }
     };
@@ -169,16 +180,16 @@ NSString * const longitudeKey = @"long";
         } else {
             startStationId = notificationData[kStartId];
         }
-        requestData[sourceStationKey] = startStationId;
-        requestData[destinationStationKey] = notificationData[kDestinationId];
+        requestData[kSourceStationKey] = startStationId;
+        requestData[kDestinationStationKey] = notificationData[kDestinationId];
 
-        requestData[distanceModeKey] = notificationData[kTravelModeKey];
+        requestData[kDistanceModeKey] = notificationData[kTravelModeKey];
 
         CLLocationCoordinate2D coords = self.locationManager.location.coordinate;
         NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
         NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
-        requestData[longitudeKey] = longitude;
-        requestData[latitudeKey] = latitude;
+        requestData[kLongitudeKey] = longitude;
+        requestData[kLatitudeKey] = latitude;
 
         [self requestNotification:requestData
                    withCompletion:nil];
@@ -190,14 +201,14 @@ NSString * const longitudeKey = @"long";
 
 
 - (void)selectStation:(NSInteger)stationIndex inGroup:(NSInteger)groupIndex {
-    if (groupIndex < [self.selectedStationIndices count]){
+    if (groupIndex < [self.selectedStations count]){
         // make sure the group index is within the expected range
         if (stationIndex < [self.nearbyStations count]){
             // also check that the station index is within the number of
             // available nearby stations.
-            NSNumber *selectedStationIndex = [NSNumber numberWithInt:stationIndex];
-            [self.selectedStationIndices replaceObjectAtIndex:groupIndex
-                                                   withObject:selectedStationIndex];
+            BartStation *selectedStation = self.nearbyStations[stationIndex];
+            [self.selectedStations replaceObjectAtIndex:groupIndex
+                                             withObject:selectedStation];
         } else {
             NSLog(@"station index is higher than nearby station count");
         }
@@ -206,21 +217,41 @@ NSString * const longitudeKey = @"long";
     }
 }
 
--(Station *)getSelectedStation:(NSInteger)groupIndex {
-    NSNumber *selectedStationIndex = self.selectedStationIndices[groupIndex];
-    NSInteger index = [selectedStationIndex integerValue];
-    if (index < 0){
+- (Station *)getSelectedStation:(NSInteger)groupIndex {
+    id selectedStation = self.selectedStations[groupIndex];
+    if (selectedStation == [NSNull null]){
         // if no selection was made for the given group, simply return nil
         return nil;
     }
-    return self.nearbyStations[[selectedStationIndex integerValue]];
+    return selectedStation;
 }
 
 - (void)resetCurrentSelectedStations {
-    for (NSInteger i = 0; i < [self.selectedStationIndices count]; ++i){
-        NSNumber *unselectedStationIndex = [NSNumber numberWithInt:-1];
-        [self.selectedStationIndices replaceObjectAtIndex:i
-                                               withObject:unselectedStationIndex];
+    for (NSInteger i = 0; i < [self.selectedStations count]; ++i){
+        [self.selectedStations replaceObjectAtIndex:i
+                                         withObject:[NSNull null]];
+    }
+}
+
+- (void)validatePreviouslySelectedSourceStation {
+    static NSUInteger sourceStationIndex = 0;
+    BOOL previousStationFound = NO;
+    Station *previousSourceStation = [self getSelectedStation:sourceStationIndex];
+    if (previousSourceStation) {
+        for (Station *station in [self nearbyStations:limitedStationNumber]) {
+            if (station.stationId == previousSourceStation.stationId) {
+                [self.selectedStations replaceObjectAtIndex:sourceStationIndex
+                                                 withObject:station];
+                previousStationFound = YES;
+                break;
+            }
+        }
+    }
+    if (!previousStationFound) {
+        // Simply clear out the previously selected source stations if it is
+        // no longer a nearby station.
+        [self.selectedStations replaceObjectAtIndex:sourceStationIndex
+                                         withObject:[NSNull null]];
     }
 }
 

@@ -5,6 +5,7 @@
 //  Created by Daisuke Fujiwara on 9/23/12.
 //  Copyright (c) 2012 HDProject. All rights reserved.
 //
+//  A view controller which represents the bart notification user interface.
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>

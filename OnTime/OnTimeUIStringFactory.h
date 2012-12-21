@@ -13,6 +13,7 @@
 
 // Navbar related strings
 + (NSString *)bartLabel;
++ (NSString *)muniLabel;
 
 // Generic button labels.
 + (NSString *)okButtonLabel;
@@ -27,9 +28,10 @@
 // The default label is "going"
 + (NSString *)modeString:(NSUInteger)mode;
 
-// Header strings used by the drill station choice view controller.
+// Prefix strings added to the station choice.
 + (NSString *)fromHeaderString;
 + (NSString *)toHeaderString;
++ (NSString *)stationHeaderString;
 
 // Prefix added to the station selected.
 // e.g. "From: Powell St" or "To: 16th Street"

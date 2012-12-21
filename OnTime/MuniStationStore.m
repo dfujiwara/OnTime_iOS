@@ -14,6 +14,8 @@
 
 @implementation MuniStationStore
 
+@synthesize selectedStation = selectedStation_;
+
 + (MuniStationStore *)sharedStore {
     static MuniStationStore *stationStore = nil;
     if (!stationStore){
@@ -39,20 +41,37 @@
         NSValue *isSuccessful = stationData[kSuccessKey];
         if (!err){
             if (isSuccessful){
+                // Only register the closest station for each route for each
+                // direction. The stations are sorted by distance from the current
+                // location.
+                NSMutableSet *routeSet = [NSMutableSet set];
+                
                 // process stations
                 for (NSDictionary *stationDict in stationData[kStationDictKey]) {
                     MuniStation *station = [[MuniStation alloc] init];
-                    station.stationId = stationDict[kStationIdKey];
-                    station.stationName = stationDict[kStationNameKey];
-                    station.streetAddress = stationDict[kStationAddressKey];
+                    station.stationId = stationDict[kStationStopIdKey];
+                    station.stationName = [NSString stringWithFormat:@"%@ (%@)",
+                                           stationDict[kStationRouteKey],
+                                           stationDict[kStationDirectionKey]];
+                    station.streetAddress = stationDict[kStationTitleKey];
                     NSArray *locationCoords = stationDict[kStationLocationKey];
                     if (locationCoords && [locationCoords count] == 2) {
                         station.location = CLLocationCoordinate2DMake([locationCoords[1] floatValue],
                                                                       [locationCoords[0] floatValue]);
                     }
 
-                    [self.nearbyStations addObject:station];
+                    if (![routeSet containsObject:station.stationName]) {
+                        [self.nearbyStations addObject:station];
+                        [routeSet addObject:station.stationName];
+                    }
                 }
+                // Sort the nearby stations in alphabetical order now.
+                NSComparator comparator = ^NSComparisonResult(id first, id second) {
+                    return [((MuniStation *)first).stationName
+                            compare:((MuniStation *)second).stationName];
+                };
+                self.nearbyStations =
+                    [[self.nearbyStations sortedArrayUsingComparator:comparator] mutableCopy];
             } else {
                 NSLog(@"success returned false");
                 err = [NSError errorWithDomain:@"Server error"
@@ -87,7 +106,7 @@
         if (err){
             NSDictionary *userInfo =
             @{kErrorTitleKey: [OnTimeUIStringFactory notificationErrorTitle],
-        kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
+              kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
             [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
                                                                 object:nil
                                                               userInfo:userInfo];
@@ -114,7 +133,7 @@
 
                 NSDictionary *userInfo =
                 @{kErrorTitleKey: [OnTimeUIStringFactory noNotificationTitle],
-            kErrorMessageKey: errorMessage};
+                  kErrorMessageKey: errorMessage};
                 [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
                                                                     object:nil
                                                                   userInfo:userInfo];
@@ -130,7 +149,6 @@
             block(err);
         }
     };
-    
     [self issueNotificationRequest:urlString
                           withData:requestData
                     withCompletion:registerNotification];
@@ -138,6 +156,20 @@
 
 - (void)processPendingNotification:(NSDictionary *)notificationData {
     
+}
+
+
+#pragma mark - station selection related methods 
+
+
+- (void)selectStation:(NSInteger)stationIndex {
+    if (stationIndex < [self.nearbyStations count]){
+        // Check that the station index is within the number of
+        // available nearby stations.
+        selectedStation_ = self.nearbyStations[stationIndex];
+    } else {
+        NSLog(@"station index is higher than nearby station count");
+    }
 }
 
 @end
