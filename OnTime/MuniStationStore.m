@@ -10,7 +10,6 @@
 #import "OnTimeConnection.h"
 #import "OnTimeConstants.h"
 #import "OnTimeUIStringFactory.h"
-#import "OnTimeNotification.h"
 
 @implementation MuniStationStore
 
@@ -38,48 +37,47 @@
         // First clear out the nearby stations.
         [self.nearbyStations removeAllObjects];
 
-        NSValue *isSuccessful = stationData[kSuccessKey];
         if (!err){
-            if (isSuccessful){
-                // Only register the closest station for each route for each
-                // direction. The stations are sorted by distance from the current
-                // location.
-                NSMutableSet *routeSet = [NSMutableSet set];
-                
-                // process stations
-                for (NSDictionary *stationDict in stationData[kStationDictKey]) {
-                    MuniStation *station = [[MuniStation alloc] init];
-                    station.stationId = stationDict[kStationStopIdKey];
-                    station.stationName = [NSString stringWithFormat:@"%@ (%@)",
-                                           stationDict[kStationRouteKey],
-                                           stationDict[kStationDirectionKey]];
-                    station.streetAddress = stationDict[kStationTitleKey];
-                    NSArray *locationCoords = stationDict[kStationLocationKey];
-                    if (locationCoords && [locationCoords count] == 2) {
-                        station.location = CLLocationCoordinate2DMake([locationCoords[1] floatValue],
-                                                                      [locationCoords[0] floatValue]);
-                    }
+            // Only register the closest station for each route for each
+            // direction. The stations are sorted by distance from the current
+            // location.
+            NSMutableSet *routeSet = [NSMutableSet set];
 
-                    if (![routeSet containsObject:station.stationName]) {
-                        [self.nearbyStations addObject:station];
-                        [routeSet addObject:station.stationName];
-                    }
+            // process stations
+            for (NSDictionary *stationDict in stationData[kStationDictKey]) {
+                MuniStation *station = [[MuniStation alloc] init];
+                station.stationId = stationDict[kStationTagKey];
+                station.stationRoute = stationDict[kStationRouteKey];
+                station.stationName = [NSString stringWithFormat:@"%@ (%@)",
+                                       stationDict[kStationRouteKey],
+                                       stationDict[kStationDirectionKey]];
+                station.streetAddress = stationDict[kStationTitleKey];
+                NSArray *locationCoords = stationDict[kStationLocationKey];
+                if (locationCoords && [locationCoords count] == 2) {
+                    station.location = CLLocationCoordinate2DMake([locationCoords[1] floatValue],
+                                                                  [locationCoords[0] floatValue]);
                 }
-                // Sort the nearby stations in alphabetical order now.
-                NSComparator comparator = ^NSComparisonResult(id first, id second) {
-                    return [((MuniStation *)first).stationName
-                            compare:((MuniStation *)second).stationName];
-                };
-                self.nearbyStations =
-                    [[self.nearbyStations sortedArrayUsingComparator:comparator] mutableCopy];
-            } else {
-                NSLog(@"success returned false");
-                err = [NSError errorWithDomain:@"Server error"
-                                          code:OnTimeErrorCodeGeneral
-                                      userInfo:nil];
+
+                if (![routeSet containsObject:station.stationName]) {
+                    [self.nearbyStations addObject:station];
+                    [routeSet addObject:station.stationName];
+                }
             }
+            // Sort the nearby stations in alphabetical order now.
+            NSComparator comparator = ^NSComparisonResult(id first, id second) {
+                return [((MuniStation *)first).stationName
+                        compare:((MuniStation *)second).stationName];
+            };
+            self.nearbyStations = [[self.nearbyStations
+                                    sortedArrayUsingComparator:comparator] mutableCopy];
         } else {
             NSLog(@"error was returned for getNearbyStations: %@", err);
+            NSDictionary *userInfo =
+                @{kErrorTitleKey: [OnTimeUIStringFactory nearbyStationErrorTitle],
+                  kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                                object:nil
+                                                              userInfo:userInfo];
         }
         if (block){
             block(err);
@@ -103,18 +101,10 @@
 
     void (^registerNotification)(NSDictionary *notificationData, NSError *err) =
     ^void(NSDictionary *notificationData, NSError *err) {
+        NSLog(@"response data is %@", notificationData);
         if (err){
-            NSDictionary *userInfo =
-            @{kErrorTitleKey: [OnTimeUIStringFactory notificationErrorTitle],
-              kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
-            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
-                                                                object:nil
-                                                              userInfo:userInfo];
-        } else {
-            NSLog(@"response data is %@", notificationData);
-            id successValue = notificationData[kSuccessKey];
-            if (![successValue boolValue]){
-                NSString *errorMessage = nil;
+            NSString *errorMessage = [OnTimeUIStringFactory genericErrorMessage];
+            if (notificationData[kErrorCodeKey]) {
                 int errorCode = [notificationData[kErrorCodeKey] intValue];
                 switch (errorCode) {
                     case OnTimeErrorMissingParameter:
@@ -130,19 +120,61 @@
                         errorMessage = [OnTimeUIStringFactory genericErrorMessage];
                         break;
                 }
-
-                NSDictionary *userInfo =
-                @{kErrorTitleKey: [OnTimeUIStringFactory noNotificationTitle],
-                  kErrorMessageKey: errorMessage};
-                [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
-                                                                    object:nil
-                                                                  userInfo:userInfo];
-            } else {
-                // Schedule the first available notification
-                OnTimeNotification *notification =
-                [[OnTimeNotification alloc] initWithNotificationData:notificationData];
-                [notification scheduleNotification:0];
             }
+            NSDictionary *userInfo =
+                @{kErrorTitleKey: [OnTimeUIStringFactory notificationErrorTitle],
+                  kErrorMessageKey: errorMessage};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
+                                                                object:nil
+                                                              userInfo:userInfo];
+        } else {
+            // Schedule the first available notification
+            NSNumber *bufferTime = notificationData[kBufferTimeKey];
+            NSNumber *durationTime = notificationData[kDurationKey];
+            NSArray *notificationEstimates = notificationData[kEstimateKey];
+            NSNumber *travelMode = notificationData[kModeKey];
+
+            NSString *route = notificationData[kRouteKey];
+            NSString *stationName = notificationData[kStationNameKey];
+            // Setting up date formatter
+            NSDateFormatter *formatter = [self dateFormatter];
+
+            NSNumber *notificationEstimate = notificationEstimates[0];
+            NSString *travelModeString = [OnTimeUIStringFactory modeString:[travelMode integerValue]];
+
+            // Convert the arrival time into a string.
+            NSInteger arrivalTimeInSeconds = [notificationEstimate intValue] * 60;
+            NSDate *arrivalTime = [NSDate dateWithTimeIntervalSinceNow:arrivalTimeInSeconds];
+            NSString *arrivalTimeString = [formatter stringFromDate:arrivalTime];
+
+            // Convert the scheduled time for departure to the station into a string.
+            NSInteger scheduledTimeInSeconds = arrivalTimeInSeconds - [durationTime intValue] -
+                [bufferTime intValue];
+            NSDate *scheduledTime = [NSDate dateWithTimeIntervalSinceNow:scheduledTimeInSeconds];
+            NSString *scheduledTimeString = [formatter stringFromDate:scheduledTime];
+
+            [self displayTransitNotification:[NSString stringWithFormat:[OnTimeUIStringFactory notificationMessageTemplate],
+                                              scheduledTimeString,
+                                              route,
+                                              stationName,
+                                              arrivalTimeString,
+                                              travelModeString,
+                                              [durationTime intValue] / 60]];
+
+            // Create local notification to notify at the appropriate time.
+            // First create user info dictionary
+            NSDictionary *userInfo = @{kRouteKey: route,
+                                       kTagKey: notificationData[kTagKey],
+                                       kSnoozableKey: @YES,
+                                       kTravelModeKey: travelMode};
+            [self scheduleTransitReminderNotification:[NSString stringWithFormat:[OnTimeUIStringFactory reminderMessageTemplate],
+                                                       route,
+                                                       stationName,
+                                                       arrivalTimeString,
+                                                       travelModeString,
+                                                       [durationTime intValue] / 60]
+                                               atTime:scheduledTime
+                                             withInfo:userInfo];
         }
 
         if (block) {

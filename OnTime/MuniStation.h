@@ -11,4 +11,7 @@
 
 @interface MuniStation : Station
 
+// Represents the route that this station object is responsible for.
+@property (nonatomic, strong) NSString *stationRoute;
+
 @end

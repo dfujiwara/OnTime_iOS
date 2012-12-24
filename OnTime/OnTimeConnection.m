@@ -8,11 +8,20 @@
 
 #import "OnTimeConnection.h"
 
-// this is necessary to keep the OnTimeConnection around after the caller's
+// This is necessary to keep the OnTimeConnection around after the caller's
 // frame goes out of scope.
 static NSMutableArray *sharedConnectionList = nil;
 
+@interface OnTimeConnection () {
+    NSURLConnection *internalConnection_; // why is this necessary??
+    NSURLResponse *response_;
+    NSMutableData *container_;
+}
+
+@end
+
 @implementation OnTimeConnection
+
 @synthesize request;
 @synthesize completionBlock;
 
@@ -24,7 +33,7 @@ static NSMutableArray *sharedConnectionList = nil;
                         format:@"Request needs to be provided for the connection"];
             return nil;
         }
-        [self setRequest:req];
+        self.request = req;
     }
     return self;
 }
@@ -36,8 +45,8 @@ static NSMutableArray *sharedConnectionList = nil;
 }
 
 - (void)start {
-    container = [[NSMutableData alloc] init];
-    internalConnection = [[NSURLConnection alloc] initWithRequest:[self request]
+    container_ = [[NSMutableData alloc] init];
+    internalConnection_ = [[NSURLConnection alloc] initWithRequest:self.request
                                                          delegate:self
                                                  startImmediately:YES];
     if (!sharedConnectionList){
@@ -46,17 +55,30 @@ static NSMutableArray *sharedConnectionList = nil;
     [sharedConnectionList addObject:self];
 }
 
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+    // Store the url response for the later use.
+    response_ = response;
+}
+
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    [container appendData:data];
+    [container_ appendData:data];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    // by default we expect JSON response
-    NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:container
+    // By default we expect JSON response
+    NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:container_
                                                              options:0
                                                                error:nil];
+    NSInteger statusCode = ((NSHTTPURLResponse *)response_).statusCode;
+    NSError *error = nil;
+    if (statusCode != 200) {
+        static NSString *errorDomain = @"http error";
+        error = [NSError errorWithDomain:errorDomain
+                                    code:statusCode
+                                userInfo:nil];
+    }
     if (self.completionBlock){
-        self.completionBlock(jsonData, nil);
+        self.completionBlock(jsonData, error);
     }
     [sharedConnectionList removeObject:self];
 }

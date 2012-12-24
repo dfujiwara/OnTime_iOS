@@ -159,14 +159,7 @@
     void (^displayNearbyStations)(NSError *err) =
     ^void(NSError *err){
         //[activityIndicator stopAnimating];
-        if (err) {
-            NSDictionary *userInfo =
-            @{kErrorTitleKey: [OnTimeUIStringFactory nearbyStationErrorTitle],
-              kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
-            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
-                                                                object:nil
-                                                              userInfo:userInfo];
-        } else {
+        if (!err) {
             // Also update the distance label to the source station if the
             // selection has been made.
             Station *sourceStation = [MuniStationStore sharedStore].selectedStation;
@@ -288,7 +281,7 @@
     // and the server.
     //requestData[kDistanceModeKey] = @(methodToGetToStation.selectedSegmentIndex);
 
-    Station *sourceStation = [MuniStationStore sharedStore].selectedStation;
+    MuniStation *sourceStation = (MuniStation *)([MuniStationStore sharedStore].selectedStation);
 
     // error checking
     if (!sourceStation){
@@ -300,7 +293,8 @@
                                                           userInfo:userInfo];
         return;
     }
-    requestData[kSourceStationKey] = sourceStation.stationId;
+    requestData[kTagKey] = sourceStation.stationId;
+    requestData[kRouteKey] = sourceStation.stationRoute;
 
     CLLocationCoordinate2D coords = userMapView_.userLocation.coordinate;
     NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];

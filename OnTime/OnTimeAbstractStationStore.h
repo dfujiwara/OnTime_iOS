@@ -30,4 +30,15 @@
                   withCompletion:(void (^)(NSDictionary *notificationData,
                                            NSError *err))block;
 
+// 
+- (NSDateFormatter *)dateFormatter;
+
+//
+- (void)displayTransitNotification:(NSString *)notificationMessage;
+
+//
+- (void)scheduleTransitReminderNotification:(NSString *)notificationMessage
+                                     atTime:(NSDate *)time
+                                   withInfo:(NSDictionary *)userInfo;
+
 @end

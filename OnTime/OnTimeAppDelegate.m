@@ -7,7 +7,6 @@
 //
 
 #import "OnTimeAppDelegate.h"
-#import "OnTimeNotification.h"
 #import "OnTimeUIStringFactory.h"
 #import "OnTimeTopViewController.h"
 #import "BartStationStore.h"

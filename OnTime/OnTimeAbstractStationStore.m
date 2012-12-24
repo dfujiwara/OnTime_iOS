@@ -9,7 +9,7 @@
 #import "OnTimeAbstractStationStore.h"
 #import "OnTimeConnection.h"
 #import "OnTimeConstants.h"
-#import "OnTimeNotification.h"
+#import "OnTimeUIStringFactory.h"
 
 @implementation OnTimeAbstractStationStore
 
@@ -56,6 +56,53 @@
     [connection start];
     NSLog(@"request notification for %@", requestData);
 }
+
+
+#pragma mark - transit notification related methods
+
+
+- (NSDateFormatter *)dateFormatter {
+    static NSDateFormatter *formatter = nil;
+    if (!formatter) {
+        formatter = [[NSDateFormatter alloc] init];
+        NSLocale *locale = [NSLocale currentLocale];
+        NSString *dateFormat = [NSDateFormatter dateFormatFromTemplate:@"hh:mm a"
+                                                               options:0
+                                                                locale:locale];
+        [formatter setDateFormat:dateFormat];
+        [formatter setLocale:locale];
+    }
+    return formatter;
+}
+
+
+- (void)displayTransitNotification:(NSString *)notificationMessage {
+    // Create the alert to inform users what time they will have to leave for
+    // the station.
+    UIAlertView *av = [[UIAlertView alloc]
+                       initWithTitle:[OnTimeUIStringFactory notificationTitle]
+                       message:notificationMessage
+                       delegate:nil
+                       cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
+                       otherButtonTitles:nil];
+    [av show];
+}
+
+
+- (void)scheduleTransitReminderNotification:(NSString *)notificationMessage
+                                     atTime:(NSDate *)scheduledTime
+                                   withInfo:(NSDictionary *)userInfo {
+
+    // Create local notification to notify at the appropriate time.
+    UILocalNotification *notification = [[UILocalNotification alloc] init];
+    [notification setFireDate:scheduledTime];
+    [notification setAlertAction:[OnTimeUIStringFactory snoozeLabel]];
+    [notification setAlertBody:notificationMessage];
+    [notification setHasAction:YES];
+    [notification setUserInfo:userInfo];
+    [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+}
+
 
 #pragma mark - protocol implementations
 

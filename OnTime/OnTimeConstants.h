@@ -13,8 +13,7 @@
 extern NSString * const kBartString;
 extern NSString * const kMuniString;
 
-// Various JSON keys used to retrieve data from server response
-extern NSString * const kSuccessKey;
+// Various JSON keys used to retrieve station data from server response
 extern NSString * const kErrorCodeKey;
 extern NSString * const kStationDictKey;
 extern NSString * const kStationIdKey;
@@ -22,7 +21,7 @@ extern NSString * const kStationNameKey;
 extern NSString * const kStationAddressKey;
 extern NSString * const kStationLocationKey;
 
-// Muni speicific JSON keys
+// Muni specific JSON keys
 extern NSString * const kStationStopIdKey;
 extern NSString * const kStationTagKey;
 extern NSString * const kStationTitleKey;
@@ -56,9 +55,33 @@ typedef enum {
     OnTimeErrorNoAvailableTime = 3
 } OnTimeErrorCode;
 
-// keys for notification request
+// Keys used for notification POST request
 extern NSString * const kDistanceModeKey;
 extern NSString * const kSourceStationKey;
 extern NSString * const kDestinationStationKey;
 extern NSString * const kLatitudeKey;
 extern NSString * const kLongitudeKey;
+
+extern NSString * const kRouteKey;
+extern NSString * const kTagKey;
+
+// Various JSON keys used to retrieve notification data from server response
+// notification data dictionary keys.
+extern NSString * const kBufferTimeKey;
+extern NSString * const kDurationKey;
+extern NSString * const kModeKey;
+extern NSString * const kEstimateKey;
+
+// Bart specific notification date JSON keys.
+extern NSString * const kStartInfoKey;
+extern NSString * const kDestinationInfoKey;
+extern NSString * const kArrivalTimeKey;
+extern NSString * const kDestinationKey;
+
+// Notification reminder user info keys
+extern NSString * const kStartId;
+extern NSString * const kDestinationId;
+extern NSString * const kSnoozableKey;
+extern NSString * const kTravelModeKey;
+
+

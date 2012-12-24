@@ -9,7 +9,6 @@
 #import "BartViewController.h"
 #import "StationChoiceViewController.h"
 #import "BartStationStore.h"
-#import "OnTimeNotification.h"
 #import "OnTimeStationMapAnnotation.h"
 #import "OnTimeUIStringFactory.h"
 #import "OnTimeConstants.h"
@@ -157,14 +156,7 @@
     void (^displayNearbyStations)(NSError *err) =
     ^void(NSError *err){
         [activityIndicator stopAnimating];
-        if (err) {
-            NSDictionary *userInfo =
-                @{kErrorTitleKey: [OnTimeUIStringFactory nearbyStationErrorTitle],
-                  kErrorMessageKey: [OnTimeUIStringFactory genericErrorMessage]};
-            [[NSNotificationCenter defaultCenter] postNotificationName:kErrorNotificationName
-                                                                object:nil
-                                                              userInfo:userInfo];
-        } else {
+        if (!err) {
             // Also update the distance label to the source station if the
             // selection has been made.
             Station *sourceStation = [[BartStationStore sharedStore]

@@ -8,11 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface OnTimeConnection : NSObject
-<NSURLConnectionDelegate, NSURLConnectionDataDelegate> {
-    NSURLConnection *internalConnection; // why is this necessary??
-    NSMutableData *container;
-}
+@interface OnTimeConnection : NSObject <NSURLConnectionDelegate>
 
 - (id)initWithRequest:(NSURLRequest *) req;
 - (void)start;
