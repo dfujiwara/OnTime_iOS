@@ -325,12 +325,9 @@
     
     requestData[kSourceStationKey] = sourceStation.stationId;
     requestData[kDestinationStationKey] = destinationStation.stationId;
-    
-    CLLocationCoordinate2D coords = userMapView.userLocation.coordinate;
-    NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
-    NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
-    requestData[kLongitudeKey] = longitude;
-    requestData[kLatitudeKey] = latitude;
+
+    // add user location entries to the request data
+    [requestData addEntriesFromDictionary:[[BartStationStore sharedStore] currentUserLocation]];
 
     void (^completionBlock)(NSError *err) = ^(NSError *err) {
         // Reset current selection since the notification was successful

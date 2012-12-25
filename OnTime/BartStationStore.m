@@ -179,7 +179,8 @@ const NSInteger limitedStationNumber = 3;
             NSDictionary *userInfo = @{kStartId: startStationInfo[kStationIdKey],
                                        kDestinationId: destinationStationInfo[kStationIdKey],
                                        kSnoozableKey: @YES,
-                                       kTravelModeKey: travelMode};
+                                       kTravelModeKey: travelMode,
+                                       kTransitTypeKey: @(OnTimeTransitTypeBart)};
             [self scheduleTransitReminderNotification:[NSString stringWithFormat:[OnTimeUIStringFactory reminderMessageTemplate],
                                                        trainDestinationName,
                                                        startStationInfo[kStationNameKey],
@@ -218,12 +219,8 @@ const NSInteger limitedStationNumber = 3;
 
         requestData[kDistanceModeKey] = notificationData[kTravelModeKey];
 
-        CLLocationCoordinate2D coords = self.locationManager.location.coordinate;
-        NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
-        NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
-        requestData[kLongitudeKey] = longitude;
-        requestData[kLatitudeKey] = latitude;
-
+        // add user location entries to the request data
+        [requestData addEntriesFromDictionary:[self currentUserLocation]];
         [self requestNotification:requestData
                    withCompletion:nil];
     }

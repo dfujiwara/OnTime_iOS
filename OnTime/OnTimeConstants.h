@@ -55,6 +55,12 @@ typedef enum {
     OnTimeErrorNoAvailableTime = 3
 } OnTimeErrorCode;
 
+// Transit types
+typedef enum {
+    OnTimeTransitTypeBart = 0,
+    OnTimeTransitTypeMuni = 1
+} OnTimeTransitType;
+
 // Keys used for notification POST request
 extern NSString * const kDistanceModeKey;
 extern NSString * const kSourceStationKey;
@@ -72,7 +78,7 @@ extern NSString * const kDurationKey;
 extern NSString * const kModeKey;
 extern NSString * const kEstimateKey;
 
-// Bart specific notification date JSON keys.
+// Bart specific notification data JSON keys.
 extern NSString * const kStartInfoKey;
 extern NSString * const kDestinationInfoKey;
 extern NSString * const kArrivalTimeKey;
@@ -83,5 +89,6 @@ extern NSString * const kStartId;
 extern NSString * const kDestinationId;
 extern NSString * const kSnoozableKey;
 extern NSString * const kTravelModeKey;
+extern NSString * const kTransitTypeKey;
 
 

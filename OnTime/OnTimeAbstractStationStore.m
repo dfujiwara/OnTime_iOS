@@ -58,6 +58,18 @@
 }
 
 
+
+#pragma mark - user location related methods
+
+
+- (NSDictionary *)currentUserLocation {
+    CLLocationCoordinate2D coords = self.locationManager.location.coordinate;
+    NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
+    NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
+    return @{kLongitudeKey: longitude, kLatitudeKey: latitude};
+}
+
+
 #pragma mark - transit notification related methods
 
 

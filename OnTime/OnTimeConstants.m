@@ -63,3 +63,4 @@ NSString * const kStartId = @"startId";
 NSString * const kDestinationId = @"destinationId";
 NSString * const kSnoozableKey = @"isSnoozable";
 NSString * const kTravelModeKey = @"travelMode";
+NSString * const kTransitTypeKey = @"transitType";

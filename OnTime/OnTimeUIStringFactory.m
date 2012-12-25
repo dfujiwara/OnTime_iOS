@@ -15,7 +15,7 @@
 }
 
 + (NSString *)muniLabel {
-    return NSLocalizedString(@"Muni", @"Bart label");
+    return NSLocalizedString(@"Muni", @"Muni label");
 }
 
 + (NSString *)okButtonLabel {

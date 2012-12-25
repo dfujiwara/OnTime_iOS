@@ -10,6 +10,7 @@
 #import "OnTimeUIStringFactory.h"
 #import "OnTimeTopViewController.h"
 #import "BartStationStore.h"
+#import "MuniStationStore.h"
 #import "OnTimeConstants.h"
 
 // Dictionary key used to store local notification in the NSNotification's
@@ -17,8 +18,10 @@
 static NSString * const kLocalNotificationKey = @"localNotificationKey";
 
 @interface OnTimeAppDelegate () {
-    // TODO: is this safe to keep only one instance of object?
-    NSDictionary *receivedNotificationData_;
+    // A dictionary which contains the received notification data.
+    NSMutableDictionary *receivedNotificationData_;
+
+    // Queue that is used to submit notification request to.
     NSOperationQueue *notificationHandlingQueue_;
 }
 
@@ -147,9 +150,17 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
                                                     delegate:self
                                            cancelButtonTitle:[OnTimeUIStringFactory okButtonLabel]
                                            otherButtonTitles:nil];
+
         if ([localNotification.userInfo[kSnoozableKey] boolValue]) {
+            if (!receivedNotificationData_) {
+                receivedNotificationData_ = [NSMutableDictionary dictionary];
+            }
+
             // store the user info of the given notification
-            receivedNotificationData_ = localNotification.userInfo;
+            static NSUInteger tagId = 0;
+            av.tag = tagId++;
+
+            receivedNotificationData_[@(av.tag)] = localNotification.userInfo;
             [av addButtonWithTitle:[OnTimeUIStringFactory snoozeLabel]];
         }
         [av show];
@@ -163,11 +174,20 @@ static NSString * const kLocalNotificationKey = @"localNotificationKey";
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
     if ([buttonTitle compare:[OnTimeUIStringFactory snoozeLabel]] == NSOrderedSame) {
+        NSDictionary *notificationData = receivedNotificationData_[@(alertView.tag)];
+
+        OnTimeAbstractStationStore *stationStore = nil;
+        if ([notificationData[kTransitTypeKey] integerValue] == OnTimeTransitTypeBart) {
+            stationStore = [BartStationStore sharedStore];
+        } else if ([notificationData[kTransitTypeKey] integerValue] == OnTimeTransitTypeMuni) {
+            stationStore = [MuniStationStore sharedStore];
+        }
+
         // Let the station store handle the notification.
-        [[BartStationStore sharedStore] processPendingNotification:receivedNotificationData_];
+        [stationStore processPendingNotification:notificationData];
         
-        // reset the notification info
-        receivedNotificationData_ = nil;
+        // Remove the notification info that was just processed.
+        [receivedNotificationData_ removeObjectForKey:@(alertView.tag)];
     }
 }
 

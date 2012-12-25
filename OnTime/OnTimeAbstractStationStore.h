@@ -30,13 +30,18 @@
                   withCompletion:(void (^)(NSDictionary *notificationData,
                                            NSError *err))block;
 
-// 
+// Returns a dictionary which contains longitude and latitude of the current
+// user location.
+- (NSDictionary *)currentUserLocation;
+
+// Retrieves the data formatter for notification message.
 - (NSDateFormatter *)dateFormatter;
 
-//
+// Displays the notification message.
 - (void)displayTransitNotification:(NSString *)notificationMessage;
 
-//
+// Schedules the reminder notification at the specified time using the
+// given message and additional info.
 - (void)scheduleTransitReminderNotification:(NSString *)notificationMessage
                                      atTime:(NSDate *)time
                                    withInfo:(NSDictionary *)userInfo;

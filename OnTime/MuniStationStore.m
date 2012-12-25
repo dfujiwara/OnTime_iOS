@@ -166,7 +166,8 @@
             NSDictionary *userInfo = @{kRouteKey: route,
                                        kTagKey: notificationData[kTagKey],
                                        kSnoozableKey: @YES,
-                                       kTravelModeKey: travelMode};
+                                       kTravelModeKey: travelMode,
+                                       kTransitTypeKey: @(OnTimeTransitTypeMuni)};
             [self scheduleTransitReminderNotification:[NSString stringWithFormat:[OnTimeUIStringFactory reminderMessageTemplate],
                                                        route,
                                                        stationName,
@@ -187,7 +188,18 @@
 }
 
 - (void)processPendingNotification:(NSDictionary *)notificationData {
-    
+    if (notificationData) {
+        NSLog(@"processing pending notification");
+        NSMutableDictionary *requestData = [NSMutableDictionary dictionary];
+        requestData[kTagKey] = notificationData[kTagKey];
+        requestData[kRouteKey] = notificationData[kRouteKey];
+        requestData[kDistanceModeKey] = notificationData[kTravelModeKey];
+
+        // add user location entries to the request data
+        [requestData addEntriesFromDictionary:[self currentUserLocation]];
+        [self requestNotification:requestData
+                   withCompletion:nil];
+    }
 }
 
 

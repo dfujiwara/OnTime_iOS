@@ -296,11 +296,8 @@
     requestData[kTagKey] = sourceStation.stationId;
     requestData[kRouteKey] = sourceStation.stationRoute;
 
-    CLLocationCoordinate2D coords = userMapView_.userLocation.coordinate;
-    NSString *longitude = [NSString stringWithFormat:@"%f", coords.longitude];
-    NSString *latitude = [NSString stringWithFormat:@"%f", coords.latitude];
-    requestData[kLongitudeKey] = longitude;
-    requestData[kLatitudeKey] = latitude;
+    // add user location entries to the request data
+    [requestData addEntriesFromDictionary:[[MuniStationStore sharedStore] currentUserLocation]];
 
     void (^completionBlock)(NSError *err) = ^(NSError *err) {
         // Reset current selection since the notification was successful
