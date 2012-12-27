@@ -33,6 +33,8 @@
 		6A9E6D251616D0C400CFF4DD /* OnTimeConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A9E6D241616D0C300CFF4DD /* OnTimeConnection.m */; };
 		6A9E6D2A1616D57300CFF4DD /* BartStationStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A9E6D291616D57200CFF4DD /* BartStationStore.m */; };
 		6ADF2585161D514B00CDEA2B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6ADF2584161D514B00CDEA2B /* Default-568h@2x.png */; };
+		98E53E99168CF92900F7A8E9 /* ontime_black_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 98E53E98168CF92900F7A8E9 /* ontime_black_57.png */; };
+		98E53E9C168CF92C00F7A8E9 /* ontime_black_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 98E53E9B168CF92C00F7A8E9 /* ontime_black_114.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -81,6 +83,8 @@
 		6A9E6D281616D57200CFF4DD /* BartStationStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BartStationStore.h; sourceTree = "<group>"; };
 		6A9E6D291616D57200CFF4DD /* BartStationStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BartStationStore.m; sourceTree = "<group>"; };
 		6ADF2584161D514B00CDEA2B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		98E53E98168CF92900F7A8E9 /* ontime_black_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ontime_black_57.png; sourceTree = "<group>"; };
+		98E53E9B168CF92C00F7A8E9 /* ontime_black_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ontime_black_114.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +106,8 @@
 		6A3CC461160EEE7700F4A12A = {
 			isa = PBXGroup;
 			children = (
+				98E53E9B168CF92C00F7A8E9 /* ontime_black_114.png */,
+				98E53E98168CF92900F7A8E9 /* ontime_black_57.png */,
 				6ADF2584161D514B00CDEA2B /* Default-568h@2x.png */,
 				6A3CC476160EEE7700F4A12A /* OnTime */,
 				6A3CC46F160EEE7700F4A12A /* Frameworks */,
@@ -263,6 +269,8 @@
 				6ADF2585161D514B00CDEA2B /* Default-568h@2x.png in Resources */,
 				6A019F081682BEBE005420D4 /* OnTimeTopViewController.xib in Resources */,
 				6A019F1A16834DC0005420D4 /* MuniViewController.xib in Resources */,
+				98E53E99168CF92900F7A8E9 /* ontime_black_57.png in Resources */,
+				98E53E9C168CF92C00F7A8E9 /* ontime_black_114.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
