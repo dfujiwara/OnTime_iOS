@@ -24,11 +24,11 @@ NSString * const kStationTitleKey = @"@title";
 NSString * const kStationDirectionKey = @"direction_name";
 NSString * const kStationRouteKey = @"route";
 
-//NSString * const kStationUrlTemplate = @"http://ontime.jit.su/%@/locate/?lat=%f&long=%f";
-//NSString * const kNotificationUrl = @"http://ontime.jit.su/%@/notify";
+NSString * const kStationUrlTemplate = @"http://ontime.jit.su/%@/locate/?lat=%f&long=%f";
+NSString * const kNotificationUrl = @"http://ontime.jit.su/%@/notify";
 
-NSString * const kStationUrlTemplate = @"http://localhost:8000/%@/locate/?lat=%f&long=%f";
-NSString * const kNotificationUrl = @"http://localhost:8000/%@/notify";
+//NSString * const kStationUrlTemplate = @"http://localhost:8000/%@/locate/?lat=%f&long=%f";
+//NSString * const kNotificationUrl = @"http://localhost:8000/%@/notify";
 
 NSString * const kPendingNotificationName = @"kPendingNotification";
 NSString * const kErrorNotificationName = @"kErrorNotification";
