@@ -17,6 +17,7 @@ UITableViewDataSource, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UIButton *requestNotificationButton;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UILabel *distanceLabel;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *methodToGetToStation;
 
 // Action for when the notification button is pressed.
 - (IBAction)requestNotification:(id)sender;

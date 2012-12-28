@@ -37,6 +37,7 @@
 @synthesize tableView = tableView_;
 @synthesize distanceLabel = distanceLabel_;
 @synthesize requestNotificationButton = requestNotificationButton_;
+@synthesize methodToGetToStation = methodToGetToStation_;
 
 # pragma mark - inits
 
@@ -279,7 +280,7 @@
 
     // Method to get to the station is shared constants between the client
     // and the server.
-    //requestData[kDistanceModeKey] = @(methodToGetToStation.selectedSegmentIndex);
+    requestData[kDistanceModeKey] = @(methodToGetToStation_.selectedSegmentIndex);
 
     MuniStation *sourceStation = (MuniStation *)([MuniStationStore sharedStore].selectedStation);
 
@@ -305,7 +306,7 @@
         [tableView_ reloadData];
 
         // Reset the segment control.
-        //methodToGetToStation.selectedSegmentIndex = 0;
+        methodToGetToStation_.selectedSegmentIndex = 0;
 
         // Also remove the map annotations since the station selections are now
         // resetted.
