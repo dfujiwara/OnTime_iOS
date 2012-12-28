@@ -12,6 +12,7 @@
 @interface OnTimeUIStringFactory : NSObject
 
 // Navbar related strings
++ (NSString *)OnTimeLabel;
 + (NSString *)bartLabel;
 + (NSString *)muniLabel;
 

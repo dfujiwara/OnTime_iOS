@@ -10,6 +10,11 @@
 
 @implementation OnTimeUIStringFactory
 
++ (NSString *)OnTimeLabel {
+    return NSLocalizedString(@"OnTime!", @"OnTime label");
+}
+
+
 + (NSString *)bartLabel {
     return NSLocalizedString(@"Bart", @"Bart label");
 }
